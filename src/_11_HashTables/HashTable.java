@@ -33,7 +33,7 @@ public class HashTable<K, V>
     }
 
     private int getBucketIdx(K key) {
-        return Math.abs(key.hashCode() % capacity);
+        return Math.abs(key.hashCode()) % capacity;
     }
 
     public void add(K key, V value) {
