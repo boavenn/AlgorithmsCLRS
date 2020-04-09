@@ -4,16 +4,16 @@ public class BinarySearchTree<T extends Comparable<T>>
 {
     private class Node
     {
-        T value;
-        Node left;
-        Node right;
+        private T key;
+        private Node left;
+        private Node right;
 
-        public Node(T value) {
-            this.value = value;
+        public Node(T key) {
+            this.key = key;
         }
     }
 
-    Node root;
+    private Node root;
 
     public void insert(T value) {
         Node node = new Node(value);
@@ -21,7 +21,7 @@ public class BinarySearchTree<T extends Comparable<T>>
         Node temp = root;
         while (temp != null) {
             parent = temp;
-            if (value.compareTo(temp.value) < 0)
+            if (value.compareTo(temp.key) < 0)
                 temp = temp.left;
             else
                 temp = temp.right;
@@ -29,7 +29,7 @@ public class BinarySearchTree<T extends Comparable<T>>
 
         if (parent == null)
             root = node;
-        else if (value.compareTo(parent.value) < 0)
+        else if (value.compareTo(parent.key) < 0)
             parent.left = node;
         else
             parent.right = node;
@@ -43,14 +43,26 @@ public class BinarySearchTree<T extends Comparable<T>>
         return search(value) != null;
     }
 
+    public void printInOrder() {
+        printInOrder(root);
+    }
+
+    private void printInOrder(Node node) {
+        if(node == null)
+            return;
+        printInOrder(node.left);
+        System.out.print(node.key + " ");
+        printInOrder(node.right);
+    }
+
     public T minimum() {
         Node n = minimum(root);
-        return n == null ? null : n.value;
+        return n == null ? null : n.key;
     }
 
     public T maximum() {
         Node n = maximum(root);
-        return n == null ? null : n.value;
+        return n == null ? null : n.key;
     }
 
     private Node minimum(Node n) {
@@ -79,17 +91,17 @@ public class BinarySearchTree<T extends Comparable<T>>
     }
 
     private Node searchRecursive(Node n, T value) {
-        if (n == null || n.value == value)
+        if (n == null || n.key == value)
             return n;
-        if (value.compareTo(n.value) < 0)
+        if (value.compareTo(n.key) < 0)
             return searchRecursive(n.left, value);
         else
             return searchRecursive(n.right, value);
     }
 
     private Node searchIterative(Node n, T value) {
-        while (n != null && n.value != value) {
-            if (value.compareTo(n.value) < 0)
+        while (n != null && n.key != value) {
+            if (value.compareTo(n.key) < 0)
                 n = n.left;
             else
                 n = n.right;
@@ -101,19 +113,19 @@ public class BinarySearchTree<T extends Comparable<T>>
         if (n == null)
             return null;
 
-        if (value == n.value) {
+        if (value == n.key) {
             if (n.left == null && n.right == null)
                 return null;
             if (n.left == null)
                 return n.right;
             if (n.right == null)
                 return n.left;
-            T min = minimum(n.right).value;
-            n.value = min;
+            T min = minimum(n.right).key;
+            n.key = min;
             n.right = removeRec(n.right, min);
             return n;
         }
-        else if (value.compareTo(n.value) < 0) {
+        else if (value.compareTo(n.key) < 0) {
             n.left = removeRec(n.left, value);
             return n;
         }
@@ -136,6 +148,7 @@ public class BinarySearchTree<T extends Comparable<T>>
             bst.remove(7);
             System.out.println(bst.contains(3));
             System.out.println(bst.maximum());
+            bst.printInOrder();
         }
     }
 }
