@@ -189,7 +189,7 @@ public class RedBlackTree<T extends Comparable<T>>
     There may be 3 cases to handle after insertion of a new Node z:
     Uncle y of the Node z is:
     1. red
-    2. black and z is the left child
+    2. black and z is the right child
     3. black and z is the left child
      */
     private void insertFixup(Node z) {
@@ -244,9 +244,9 @@ public class RedBlackTree<T extends Comparable<T>>
     There may be 4 cases to handle after removal of a Node:
     Sibling w of the node x (x is the node which replaced z after its removal):
     1. is red
-    2. is black and both children of w are black
-    3. is black and left child of w is red and right is black
-    4. is black and left child of w is black and right is red
+    2. is black and its both children are black
+    3. is black, its left child is red and right is black
+    4. is black and its right child is red (left one can be any color)
      */
     private void removeFixup(Node x) {
         while (x != root && x.color == Node.BLACK) {
