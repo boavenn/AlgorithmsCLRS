@@ -10,7 +10,11 @@ B-tree properties:
 3. All leaves are at the same level
 4. Every node except root must contain atleast t - 1 keys. Root may contain minimum 1 key
 5. All nodes (including root) may contain at most 2t - 1 keys
+
 t - tree order
+
+A lot of assumptions have been made to make the code cleaner, so
+normally you'd want to throw some exceptions here and there
  */
 
 public class BTree<T extends Comparable<T>>
@@ -20,13 +24,11 @@ public class BTree<T extends Comparable<T>>
         private int n;
         private T[] keys;
         private boolean isLeaf;
-        private int t;
         private Node<T>[] children;
         private Node<T> parent;
 
         @SuppressWarnings("unchecked")
         public Node(int t, boolean isLeaf) {
-            this.t = t;
             this.isLeaf = isLeaf;
             this.keys = (T[]) new Comparable[2 * t - 1];
             this.children = new Node[2 * t];
@@ -76,7 +78,6 @@ public class BTree<T extends Comparable<T>>
             return i;
         }
 
-        // it takes no more than O(2 * t - 1) time
         public T removeKey(T key) {
             return removeKey(indexOf(key));
         }
@@ -113,9 +114,9 @@ public class BTree<T extends Comparable<T>>
     public BTree(int t) {
         this.t = t;
         this.minKeys = t - 1;
-        this.minChildren = minKeys + 1;
+        this.minChildren = t;
         this.maxKeys = 2 * t - 1;
-        this.maxChildren = maxKeys + 1;
+        this.maxChildren = 2 * t;
         this.root = new Node<>(t, true);
     }
 
@@ -160,7 +161,7 @@ public class BTree<T extends Comparable<T>>
     private Node<T> predecessorLeafOf(Node<T> x, T key) {
         Node<T> subtree = leftSubtreeOf(x, key);
         while (!subtree.isLeaf) {
-            subtree = subtree.children[subtree.n]; // get last child
+            subtree = subtree.children[subtree.n];
         }
         return subtree;
     }
@@ -195,12 +196,12 @@ public class BTree<T extends Comparable<T>>
         left.addKey(parent.removeKey(indexOf(left)));
 
         if (left.isLeaf) {
-            // leaf has no children so we move only keys
+            // leaf has no children so only keys have to be moved
             for (int i = 0; i < right.n; i++)
                 left.addKey(right.keys[i]);
         }
         else {
-            // if a node isn't leaf we need to copy children as well
+            // if a node isn't leaf we need to move children as well
             int i;
             for (i = 0; i < right.n; i++) {
                 left.appendChild(right.children[i]);
@@ -234,7 +235,7 @@ public class BTree<T extends Comparable<T>>
             return;
         }
 
-        // if we cant borrow any keys from either right of left sibling we need to merge
+        // if we cant borrow any keys from either right or left sibling we need to merge
         if (leftSibling != null)
             merge(leftSibling, x);
         else
@@ -246,12 +247,12 @@ public class BTree<T extends Comparable<T>>
         Node<T> z = new Node<>(t, y.isLeaf);
         z.parent = x;
         z.n = minKeys;
-        // copy half of the keys from y to z
+        // move half of the keys from y to z
         for (int j = 0; j < minKeys; j++) {
             z.keys[j] = y.keys[t + j];
             y.keys[t + j] = null;
         }
-        // if y isn't leaf (it means it has children) we need to copy them as well
+        // if y isn't leaf (it means it has children) we need to move them as well
         if (!y.isLeaf) {
             for (int j = 0; j < minChildren; j++) {
                 z.children[j] = y.children[t + j];
@@ -311,20 +312,20 @@ public class BTree<T extends Comparable<T>>
 
     public T remove(T key) {
         Node<T> x = root.search(key);
-        return remove(x, key);
-    }
-
-    private T remove(Node<T> x, T key) {
         if (x == null)
             return null;
         // at this point we already know that the key exists in node x
+        return remove(x, key);
+    }
+
+    // we assume that the key exists in the node
+    private T remove(Node<T> x, T key) {
         if (x.isLeaf)
             return removeFromLeaf(x, key);
         else
             return removeFromInternal(x, key);
     }
 
-    // x is the leaf node
     private T removeFromLeaf(Node<T> x, T key) {
         T v = x.removeKey(key);
         if (x.n < minKeys)
@@ -332,7 +333,6 @@ public class BTree<T extends Comparable<T>>
         return v;
     }
 
-    // x is the internal node
     private T removeFromInternal(Node<T> x, T key) {
         T v = x.keys[x.indexOf(key)];
         Node<T> predecessorLeaf = predecessorLeafOf(x, key);
