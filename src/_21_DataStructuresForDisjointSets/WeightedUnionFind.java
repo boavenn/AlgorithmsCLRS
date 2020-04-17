@@ -1,29 +1,29 @@
 package _21_DataStructuresForDisjointSets;
 
-public abstract class WeightedUnionFind
+public abstract class WeightedUnionFind<T>
 {
-    public static class Node
+    public static class Node<T>
     {
-        private int value;
-        private Node parent;
+        private T value;
+        private Node<T> parent;
         private int rank;
 
-        public Node(int value) {
+        public Node(T value) {
             this.value = value;
             parent = this;
             rank = 0;
         }
     }
 
-    public static Node makeSet(int value) {
-        return new Node(value);
+    public static <T> Node<T> makeSet(T value) {
+        return new Node<T>(value);
     }
 
-    public static void union(Node x, Node y) {
+    public static <T> void union(Node<T> x, Node<T> y) {
         link(findSet(x), findSet(y));
     }
 
-    public static void link(Node x, Node y) {
+    public static <T> void link(Node<T> x, Node<T> y) {
         if (x.rank > y.rank)
             y.parent = x;
         else {
@@ -33,16 +33,17 @@ public abstract class WeightedUnionFind
         }
     }
 
-    public static Node findSet(Node n) {
+    public static <T> Node<T> findSet(Node<T> n) {
         if (n != n.parent)
             n = findSet(n.parent);
         return n.parent;
     }
 
+    @SuppressWarnings("unchecked")
     private static class Example
     {
         public static void main(String[] args) {
-            Node[] n = new Node[11];
+            Node<Integer>[] n = new Node[11];
             for (int i = 0; i < n.length; i++)
                 n[i] = makeSet(i);
 
