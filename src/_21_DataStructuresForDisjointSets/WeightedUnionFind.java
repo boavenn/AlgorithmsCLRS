@@ -1,5 +1,7 @@
 package _21_DataStructuresForDisjointSets;
 
+import java.util.Objects;
+
 public abstract class WeightedUnionFind<T>
 {
     public static class Node<T>
@@ -13,10 +15,18 @@ public abstract class WeightedUnionFind<T>
             parent = this;
             rank = 0;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Node<?> node = (Node<?>) o;
+            return Objects.equals(value, node.value);
+        }
     }
 
     public static <T> Node<T> makeSet(T value) {
-        return new Node<T>(value);
+        return new Node<>(value);
     }
 
     public static <T> void union(Node<T> x, Node<T> y) {
