@@ -5,19 +5,32 @@ import java.util.*;
 public class DirectedGraph<T> extends Graph<T>
 {
     @Override
-    public void addEdge(T a, T b) {
-        Vertex<T> v1 = new Vertex<>(a);
-        Vertex<T> v2 = new Vertex<>(b);
-        adj.get(v1).add(v2);
+    public List<Vertex<T>> getAdjacentVerticesOf(Vertex<T> v) {
+        List<Vertex<T>> temp = new LinkedList<>();
+        for (Edge<T> e : adj.get(v))
+            temp.add(e.dest);
+        return temp;
+    }
+
+    public List<Edge<T>> getEdges() {
+        List<Edge<T>> temp = new LinkedList<>();
+        for (List<Edge<T>> l : adj.values())
+            temp.addAll(l);
+        return temp;
+    }
+
+    public List<Edge<T>> getEdgesOf(Vertex<T> v) {
+        return new LinkedList<>(adj.get(v));
     }
 
     @Override
-    public void removeEdge(T a, T b) {
-        Vertex<T> v1 = new Vertex<>(a);
-        Vertex<T> v2 = new Vertex<>(b);
-        List<Vertex<T>> l1 = adj.get(v1);
-        if (l1 != null)
-            l1.remove(v2);
+    public void addEdge(Vertex<T> a, Vertex<T> b) {
+        adj.get(a).add(new Edge<>(a, b));
+    }
+
+    @Override
+    public void removeEdge(Vertex<T> a, Vertex<T> b) {
+        adj.get(a).removeIf(e -> e.dest.equals(b));
     }
 
     public static <T> DirectedGraph<T> transpose(DirectedGraph<T> graph) {
@@ -25,18 +38,21 @@ public class DirectedGraph<T> extends Graph<T>
 
         List<Vertex<T>> vertices = graph.getVertices();
         for (Vertex<T> v : vertices) {
-            temp.addVertex(v.key);
+            temp.addVertex(v.getKey());
         }
+
         for (Vertex<T> v : vertices) {
-            for (Vertex<T> u : graph.getAdjacentVertices(v.key))
-                temp.addEdge(u.key, v.key);
+            for (Vertex<T> u : graph.getAdjacentVerticesOf(v.getKey()))
+                temp.addEdge(u.getKey(), v.getKey());
         }
+
         return temp;
     }
 
-    public static <T> List<T> topologicalSort(DirectedGraph<T> graph) {
+    public static <T> List<Vertex<T>> topologicalSort(DirectedGraph<T> graph) {
+        // true means permanent mark, false means temporary
         Map<Vertex<T>, Boolean> visited = new HashMap<>();
-        Stack<T> stack = new Stack<>();
+        Stack<Vertex<T>> stack = new Stack<>();
 
         List<Vertex<T>> vertices = graph.getVertices();
         for (Vertex<T> v : vertices) {
@@ -44,25 +60,27 @@ public class DirectedGraph<T> extends Graph<T>
                 topologicalVisit(graph, v, visited, stack);
         }
 
-        List<T> temp = new LinkedList<>();
+        List<Vertex<T>> temp = new LinkedList<>();
         while (!stack.isEmpty())
             temp.add(stack.pop());
         return temp;
     }
 
-    private static <T> void topologicalVisit(DirectedGraph<T> graph, Vertex<T> v, Map<Vertex<T>, Boolean> visited, Stack<T> stack) {
+    private static <T> void topologicalVisit(DirectedGraph<T> graph, Vertex<T> v, Map<Vertex<T>, Boolean> visited, Stack<Vertex<T>> stack) {
         if (visited.containsKey(v) && visited.get(v)) // permanent mark
             return;
         if (visited.containsKey(v) && !visited.get(v)) // temporary mark
             throw new IllegalArgumentException("Graph is not a DAG");
 
+        // temporary mark
         visited.put(v, false);
 
-        for (Vertex<T> vtx : graph.getAdjacentVertices(v.key))
+        for (Vertex<T> vtx : graph.getAdjacentVerticesOf(v.getKey()))
             topologicalVisit(graph, vtx, visited, stack);
 
+        // permanent mark
         visited.put(v, true);
-        stack.push(v.key);
+        stack.push(v);
     }
 
     public static <T> List<DirectedGraph<T>> stronglyConnectedComponents(DirectedGraph<T> graph) {
@@ -85,9 +103,9 @@ public class DirectedGraph<T> extends Graph<T>
         // can be omitted if you dont care about links in subgraphs
         for (Vertex<T> v : vertices) {
             DirectedGraph<T> subGraph = components.get(v);
-            for (Vertex<T> u : graph.getAdjacentVertices(v.key)) {
-                if (subGraph.contains(u.key)) {
-                    subGraph.addEdge(v.key, u.key);
+            for (Vertex<T> u : graph.getAdjacentVerticesOf(v)) {
+                if (subGraph.contains(u)) {
+                    subGraph.addEdge(v.getKey(), u.getKey());
                 }
             }
         }
@@ -98,9 +116,12 @@ public class DirectedGraph<T> extends Graph<T>
     private static <T> void sccVisit(DirectedGraph<T> graph, Vertex<T> v, Map<Vertex<T>, Boolean> visited, Stack<Vertex<T>> stack) {
         if (visited.containsKey(v))
             return;
+
         visited.put(v, true);
-        for (Vertex<T> u : graph.getAdjacentVertices(v.key))
+
+        for (Vertex<T> u : graph.getAdjacentVerticesOf(v))
             sccVisit(graph, u, visited, stack);
+
         stack.push(v);
     }
 
@@ -116,10 +137,10 @@ public class DirectedGraph<T> extends Graph<T>
         else
             components.put(v, components.get(root));
 
-        components.get(root).addVertex(v.key);
+        components.get(root).addVertex(v);
         visited.put(v, true);
 
-        for (Vertex<T> u : graph.getAdjacentVertices(v.key))
+        for (Vertex<T> u : graph.getAdjacentVerticesOf(v.getKey()))
             sccAssign(graph, u, root, visited, components);
     }
 
@@ -127,7 +148,6 @@ public class DirectedGraph<T> extends Graph<T>
     {
         public static void main(String[] args) {
             DirectedGraph<Character> graph = new DirectedGraph<>();
-
             Character[] V = {'u', 'x', 'v', 'w', 'y', 'z'};
             Character[][] E = {
                     {'u', 'x'}, {'x', 'v'}, {'u', 'v'}, {'v', 'y'},
@@ -139,14 +159,13 @@ public class DirectedGraph<T> extends Graph<T>
             for (Character[] c : E)
                 graph.addEdge(c[0], c[1]);
 
+            System.out.println("Graph 0: ");
             System.out.println(graph);
-
             System.out.println("Breadth first traversal, root: w");
-            System.out.println(Graph.breadthFirstSearch(graph, 'w'));
+            System.out.println(UndirectedGraph.breadthFirstSearch(graph, new Vertex<>('w')));
             System.out.println("Depth first traversal, root: u");
-            System.out.println(Graph.depthFirstSearch(graph, 'u'));
+            System.out.println(UndirectedGraph.depthFirstSearch(graph, new Vertex<>('u')));
 
-            System.out.println();
             DirectedGraph<Integer> graph1 = new DirectedGraph<>();
             Integer[] V1 = {0, 1, 2, 3, 4, 5};
             Integer[][] E1 = {{5, 2}, {5, 0}, {4, 0}, {4, 1}, {3, 1}, {2, 3}};
@@ -155,13 +174,13 @@ public class DirectedGraph<T> extends Graph<T>
                 graph1.addVertex(i);
             for (Integer[] i : E1)
                 graph1.addEdge(i[0], i[1]);
+
+            System.out.println("\nGraph 1: ");
             System.out.println(graph1);
             System.out.println("Topological sort: ");
             System.out.println(DirectedGraph.topologicalSort(graph1));
             // will throw an exception because first graph is not a DAG (Directed Asyclic Graph)
-//            System.out.println(DirectedGraph.topologicalSort(graph));
-
-            System.out.println("Strongly connected components: ");
+            // System.out.println(DirectedGraph.topologicalSort(graph));
 
             DirectedGraph<Character> graph2 = new DirectedGraph<>();
 
@@ -178,8 +197,8 @@ public class DirectedGraph<T> extends Graph<T>
             for (Character[] c : E2)
                 graph2.addEdge(c[0], c[1]);
 
+            System.out.println("\nGraph 2: ");
             System.out.println(graph2);
-
 
             List<DirectedGraph<Character>> l = stronglyConnectedComponents(graph2);
             System.out.println("Strongly connected components: ");
