@@ -1,37 +1,41 @@
 package _23_MinimumSpanningTrees;
 
-import _22_ElementaryGraphAlgorithms.WeightedUndirectedGraph;
+import _22_ElementaryGraphAlgorithms.Graph;
 
 import java.util.*;
 
-import static _22_ElementaryGraphAlgorithms.UndirectedGraph.Vertex;
-import static _22_ElementaryGraphAlgorithms.WeightedUndirectedGraph.WEdge;
+import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
+import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
 public abstract class PrimAlgorithm
 {
-    public static <T> List<WEdge<T>> calc(WeightedUndirectedGraph<T> graph) {
+    public static <T> List<Edge<T>> calc(Graph<T> graph) {
         List<Vertex<T>> vertices = graph.getVertices();
         // result minimum path
-        List<WEdge<T>> result = new LinkedList<>();
+        List<Edge<T>> result = new LinkedList<>();
         // vertices already included in MSP
         Map<Vertex<T>, Boolean> visited = new HashMap<>();
         // priority queue to sort edges by weight
-        PriorityQueue<WEdge<T>> queue = new PriorityQueue<>(Comparator.comparingInt(WEdge::getWeight));
+        PriorityQueue<Edge<T>> queue = new PriorityQueue<>(Comparator.comparingInt(Edge::getWeight));
 
         Vertex<T> v = vertices.get(0);
         visited.put(v, true);
-        queue.addAll(graph.getEdgesOf(v));
+        queue.addAll(graph.getAdjacentEdgesOf(v));
 
-        while(visited.size() != vertices.size()) {
-            WEdge<T> min = queue.poll();
+        while (visited.size() != vertices.size()) {
+            Edge<T> min = queue.poll();
             // if edge destination is already in MSP we omit it
-            while(visited.containsKey(min.getDest()))
+            while (min != null && visited.containsKey(min.getDest()))
                 min = queue.poll();
+
+            if(min == null)
+                throw new IllegalArgumentException("Cannot create MSP from a given graph");
+
             result.add(min);
 
             v = min.getDest();
             visited.put(v, true);
-            queue.addAll(graph.getEdgesOf(v));
+            queue.addAll(graph.getAdjacentEdgesOf(v));
         }
 
         return result;
@@ -40,11 +44,12 @@ public abstract class PrimAlgorithm
     private static class Example
     {
         public static void main(String[] args) {
-            WeightedUndirectedGraph<Character> graph = new WeightedUndirectedGraph<>();
+            Graph<Character> graph = new Graph<>(false);
 
             Character[] V = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'};
             Character[][] E = {
-                    {'a', 'b'}, {'a', 'h'}, {'b', 'h'}, {'h', 'i'}, {'h', 'g'},
+                    {'a', 'b'}, {'a', 'h'},
+                    {'b', 'h'}, {'h', 'i'}, {'h', 'g'},
                     {'g', 'i'}, {'i', 'c'}, {'c', 'b'}, {'c', 'd'}, {'c', 'f'},
                     {'f', 'g'}, {'f', 'd'}, {'d', 'e'}, {'e', 'f'},
             };

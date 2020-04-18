@@ -2,7 +2,7 @@ package _22_ElementaryGraphAlgorithms;
 
 import java.util.*;
 
-public abstract class Graph<T>
+public class Graph<T>
 {
     public static class Vertex<T>
     {
@@ -43,35 +43,64 @@ public abstract class Graph<T>
     {
         protected Vertex<T> src;
         protected Vertex<T> dest;
+        protected Integer weight;
 
-        public Edge(Vertex<T> src, Vertex<T> dest) {
+        public Edge(Vertex<T> src, Vertex<T> dest, Integer weight) {
             this.src = src;
             this.dest = dest;
+            this.weight = weight;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Edge<?> edge = (Edge<?>) o;
-            return src.equals(edge.src) && dest.equals(edge.dest);
+        public Vertex<T> getSrc() {
+            return src;
         }
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(src, dest);
+        public Vertex<T> getDest() {
+            return dest;
+        }
+
+        public Integer getWeight() {
+            return weight;
+        }
+
+        public Edge(Vertex<T> src, Vertex<T> dest) {
+            this(src, dest, null);
         }
 
         @Override
         public String toString() {
-            return "[" + src.key + " -> " + dest.key + "]";
+            String w = weight == null ? "" : "(" + weight + ")";
+            return "[" + src.key + " -" + w + "-> " + dest.key + "]";
         }
     }
 
     protected Map<Vertex<T>, List<Edge<T>>> adj = new HashMap<>();
+    protected boolean directed;
+
+    public Graph(boolean directed) {
+        this.directed = directed;
+    }
 
     public List<Vertex<T>> getVertices() {
         return new LinkedList<>(adj.keySet());
+    }
+
+    public List<Vertex<T>> getAdjacentVerticesOf(Vertex<T> v) {
+        List<Vertex<T>> temp = new LinkedList<>();
+        for (Edge<T> e : adj.get(v))
+            temp.add(e.dest);
+        return temp;
+    }
+
+    public List<Edge<T>> getEdges() {
+        List<Edge<T>> temp = new LinkedList<>();
+        for (List<Edge<T>> l : adj.values())
+            temp.addAll(l);
+        return temp;
+    }
+
+    public List<Edge<T>> getAdjacentEdgesOf(Vertex<T> v) {
+        return new LinkedList<>(adj.get(v));
     }
 
     public void addVertex(Vertex<T> v) {
@@ -83,18 +112,32 @@ public abstract class Graph<T>
         adj.remove(v);
     }
 
+    public void addEdge(Vertex<T> a, Vertex<T> b, Integer weight) {
+        adj.get(a).add(new Edge<>(a, b, weight));
+        if (!directed)
+            adj.get(b).add(new Edge<>(b, a, weight));
+    }
+
+    public void addEdge(Vertex<T> a, Vertex<T> b) {
+        addEdge(a, b, null);
+    }
+
+    public void removeEdge(Vertex<T> a, Vertex<T> b) {
+        adj.get(a).removeIf(e -> e.dest.equals(b));
+        if (!directed)
+            adj.get(b).removeIf(e -> e.dest.equals(a));
+    }
+
     public boolean contains(Vertex<T> v) {
         return adj.containsKey(v);
     }
 
-    public abstract List<Vertex<T>> getAdjacentVerticesOf(Vertex<T> v);
-
-    public abstract void addEdge(Vertex<T> a, Vertex<T> b);
-
-    public abstract void removeEdge(Vertex<T> a, Vertex<T> b);
-
     public List<Vertex<T>> getAdjacentVerticesOf(T key) {
         return getAdjacentVerticesOf(new Vertex<>(key));
+    }
+
+    public List<Edge<T>> getAdjacentEdgesOf(T key) {
+        return getAdjacentEdgesOf(new Vertex<>(key));
     }
 
     public void addVertex(T key) {
@@ -103,6 +146,10 @@ public abstract class Graph<T>
 
     public void removeVertex(T key) {
         removeVertex(new Vertex<>(key));
+    }
+
+    public void addEdge(T a, T b, Integer weight) {
+        addEdge(new Vertex<>(a), new Vertex<>(b), weight);
     }
 
     public void addEdge(T a, T b) {
@@ -133,49 +180,22 @@ public abstract class Graph<T>
         return str.substring(0, str.length() - 1);
     }
 
-    public static <T> List<Edge<T>> breadthFirstSearch(Graph<T> graph, Vertex<T> root) {
-        List<Edge<T>> result = new LinkedList<>();
-        Set<Vertex<T>> visited = new LinkedHashSet<>();
-        Queue<Vertex<T>> queue = new LinkedList<>();
+    public static <T> Graph<T> transpose(Graph<T> graph) {
+        if(!graph.directed)
+            throw new IllegalArgumentException("Graph is not directed");
 
-        queue.add(root);
-        visited.add(root);
+        Graph<T> temp = new Graph<>(true);
 
-        while (!queue.isEmpty()) {
-            Vertex<T> vertex = queue.poll();
-            for (Vertex<T> v : graph.getAdjacentVerticesOf(vertex)) {
-                if (!visited.contains(v)) {
-                    visited.add(v);
-                    queue.add(v);
-                    result.add(new Edge<T>(vertex, v));
-                }
-            }
+        List<Vertex<T>> vertices = graph.getVertices();
+        for (Vertex<T> v : vertices) {
+            temp.addVertex(v.key);
         }
 
-        return result;
-    }
-
-    public static <T> List<Edge<T>> depthFirstSearch(Graph<T> graph, Vertex<T> root) {
-        List<Edge<T>> result = new LinkedList<>();
-        Set<Vertex<T>> visited = new LinkedHashSet<>();
-        Stack<Vertex<T>> stack = new Stack<>();
-
-        stack.push(root);
-
-        // only for edge printing
-        Vertex<T> last = root;
-        while (!stack.isEmpty()) {
-            Vertex<T> vertex = stack.pop();
-            if (!visited.contains(vertex)) {
-                visited.add(vertex);
-                if (vertex != last)
-                    result.add(new Edge<>(last, vertex));
-                last = vertex;
-                for (Vertex<T> v : graph.getAdjacentVerticesOf(vertex))
-                    stack.push(v);
-            }
+        for (Vertex<T> v : vertices) {
+            for (Edge<T> e : graph.getAdjacentEdgesOf(v))
+                temp.addEdge(e.dest.key, e.src.key, e.weight);
         }
 
-        return result;
+        return temp;
     }
 }
