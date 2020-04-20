@@ -25,7 +25,7 @@ public class Graph<T>
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Vertex<?> vertex = (Vertex<?>) o;
-            return key.equals(vertex.key);
+            return Objects.equals(key, vertex.key);
         }
 
         @Override
