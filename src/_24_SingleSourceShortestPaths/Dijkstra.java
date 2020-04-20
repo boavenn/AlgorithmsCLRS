@@ -10,27 +10,49 @@ import java.util.PriorityQueue;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public abstract class Dijkstra<T>
+public abstract class Dijkstra
 {
-    public static <T> Map<Vertex<T>, Integer> dijkstra(Graph<T> graph, Vertex<T> src) {
-        class DijkstraNode
-        {
-            Vertex<T> v;
-            Integer d;
+    private static class DijkstraNode<T>
+    {
+        Vertex<T> v;
+        Integer d;
 
-            public DijkstraNode(Vertex<T> v, Integer d) {
-                this.v = v;
-                this.d = d;
+        public DijkstraNode(Vertex<T> v, Integer d) {
+            this.v = v;
+            this.d = d;
+        }
+    }
+
+    public static <T> Map<Vertex<T>, Integer> dijkstraDistance(Graph<T> graph, Vertex<T> src) {
+        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
+        Map<Vertex<T>, Boolean> visited = new HashMap<>();
+        PriorityQueue<DijkstraNode<T>> queue = new PriorityQueue<>(Comparator.comparingInt(n -> n.d));
+
+        queue.add(new DijkstraNode<>(src, 0));
+
+        while (!queue.isEmpty()) {
+            Vertex<T> v = queue.poll().v;
+            visited.put(v, true);
+            for (Edge<T> e : graph.getAdjacentEdgesOf(v)) {
+                Vertex<T> dest = e.getDest();
+                if (!visited.containsKey(dest)) {
+                    Util.relax(map, e);
+                    queue.add(new DijkstraNode<>(dest, map.get(dest)));
+                }
             }
         }
 
+        return map;
+    }
+
+    public static <T> Map<Vertex<T>, Vertex<T>> dijkstraPath(Graph<T> graph, Vertex<T> src) {
         Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
         Map<Vertex<T>, Boolean> visited = new HashMap<>();
-        PriorityQueue<DijkstraNode> queue = new PriorityQueue<>(Comparator.comparingInt(n -> n.d));
+        PriorityQueue<DijkstraNode<T>> queue = new PriorityQueue<>(Comparator.comparingInt(n -> n.d));
         // if we want to have information about "how to get to" a vertex from the src to get the shortest path
         Map<Vertex<T>, Vertex<T>> util = new HashMap<>();
 
-        queue.add(new DijkstraNode(src, 0));
+        queue.add(new DijkstraNode<>(src, 0));
 
         while (!queue.isEmpty()) {
             Vertex<T> v = queue.poll().v;
@@ -40,14 +62,12 @@ public abstract class Dijkstra<T>
                 if (!visited.containsKey(dest)) {
                     if (Util.relax(map, e))
                         util.put(dest, v);
-                    queue.add(new DijkstraNode(dest, map.get(dest)));
+                    queue.add(new DijkstraNode<>(dest, map.get(dest)));
                 }
             }
         }
 
-        //System.out.println(util);
-
-        return map;
+        return util;
     }
 
     private static class Example
@@ -69,7 +89,14 @@ public abstract class Dijkstra<T>
 
             System.out.println(graph);
             System.out.println("Shortest paths from root 's': ");
-            System.out.println(Dijkstra.dijkstra(graph, new Vertex<>('s')));
+            System.out.println(Dijkstra.dijkstraDistance(graph, new Vertex<>('s')));
+
+            System.out.println("\nShortest paths from root 's': ");
+            Map<Vertex<Character>, Vertex<Character>> paths = Dijkstra.dijkstraPath(graph, new Vertex<>('s'));
+            System.out.println(paths);
+
+            System.out.println("\nShortest path from 's' to 'x': ");
+            System.out.println(Util.getShortestPath(paths, new Vertex<>('s'), new Vertex<>('x')));
         }
     }
 }

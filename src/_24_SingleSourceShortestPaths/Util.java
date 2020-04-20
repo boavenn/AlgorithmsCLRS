@@ -1,13 +1,11 @@
 package _24_SingleSourceShortestPaths;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public abstract class Util<T>
+public abstract class Util
 {
     public static <T> Map<Vertex<T>, Integer> initializeSource(List<Vertex<T>> vertices, Vertex<T> src) {
         Map<Vertex<T>, Integer> temp = new HashMap<>();
@@ -25,5 +23,22 @@ public abstract class Util<T>
             return true;
         }
         return false;
+    }
+
+    public static <T> List<Vertex<T>> getShortestPath(Map<Vertex<T>, Vertex<T>> paths, Vertex<T> src, Vertex<T> i) {
+        List<Vertex<T>> path = new LinkedList<>();
+        Stack<Vertex<T>> stack = new Stack<>();
+        Vertex<T> v = i;
+
+        while (!v.equals(src)) {
+            stack.push(v);
+            v = paths.get(v);
+        }
+        path.add(src);
+
+        while (!stack.isEmpty())
+            path.add(stack.pop());
+
+        return path;
     }
 }

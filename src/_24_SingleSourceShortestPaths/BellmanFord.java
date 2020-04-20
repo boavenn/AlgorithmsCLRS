@@ -8,11 +8,24 @@ import java.util.Map;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public abstract class BellmanFord<T>
+public abstract class BellmanFord
 {
-    public static <T> Map<Vertex<T>, Integer> bellmanFord(Graph<T> graph, Vertex<T> src) {
+    public static <T> Map<Vertex<T>, Integer> bellmanFordDistance(Graph<T> graph, Vertex<T> src) {
         Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
-        // if we want to have information about "how to get to" a vertex from the src to get the shortest path
+
+        int V = map.size();
+        for (int i = 1; i < V; i++) {
+            for (Edge<T> e : graph.getEdges()) {
+                Util.relax(map, e);
+            }
+        }
+        validateGraph(graph, map);
+
+        return map;
+    }
+
+    public static <T> Map<Vertex<T>, Vertex<T>> bellmanFordPath(Graph<T> graph, Vertex<T> src) {
+        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
         Map<Vertex<T>, Vertex<T>> util = new HashMap<>();
 
         int V = map.size();
@@ -22,17 +35,18 @@ public abstract class BellmanFord<T>
                     util.put(e.getDest(), e.getSrc());
             }
         }
+        validateGraph(graph, map);
 
+        return util;
+    }
+
+    private static <T> void validateGraph(Graph<T> graph, Map<Vertex<T>, Integer> map) {
         for (Edge<T> e : graph.getEdges()) {
             Vertex<T> u = e.getSrc();
             Vertex<T> v = e.getDest();
             if (map.get(u) != Integer.MAX_VALUE && map.get(v) > map.get(u) + e.getWeight())
                 throw new IllegalArgumentException("No shortest paths found in the given graph");
         }
-
-        //System.out.println(util);
-
-        return map;
     }
 
     private static class Example
@@ -53,8 +67,16 @@ public abstract class BellmanFord<T>
                 graph.addEdge(E[i][0], E[i][1], W[i]);
 
             System.out.println(graph);
-            System.out.println("Shortest paths from root 's': ");
-            System.out.println(BellmanFord.bellmanFord(graph, new Vertex<>('s')));
+
+            System.out.println("\nShortest distances from root 's': ");
+            System.out.println(BellmanFord.bellmanFordDistance(graph, new Vertex<>('s')));
+
+            System.out.println("\nShortest paths from root 's': ");
+            Map<Vertex<Character>, Vertex<Character>> paths = BellmanFord.bellmanFordPath(graph, new Vertex<>('s'));
+            System.out.println(paths);
+
+            System.out.println("\nShortest path from 's' to 't': ");
+            System.out.println(Util.getShortestPath(paths, new Vertex<>('s'), new Vertex<>('t')));
         }
     }
 }
