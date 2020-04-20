@@ -30,7 +30,7 @@ public abstract class BellmanFord<T>
                 throw new IllegalArgumentException("No shortest paths found in the given graph");
         }
 
-        System.out.println(util);
+        //System.out.println(util);
 
         return map;
     }

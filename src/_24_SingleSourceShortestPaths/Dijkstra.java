@@ -45,7 +45,7 @@ public abstract class Dijkstra<T>
             }
         }
 
-        System.out.println(util);
+        //System.out.println(util);
 
         return map;
     }
