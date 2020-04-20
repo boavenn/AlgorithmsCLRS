@@ -63,6 +63,18 @@ public class Graph<T>
             return weight;
         }
 
+        public void setSrc(Vertex<T> src) {
+            this.src = src;
+        }
+
+        public void setDest(Vertex<T> dest) {
+            this.dest = dest;
+        }
+
+        public void setWeight(Integer weight) {
+            this.weight = weight;
+        }
+
         public Edge(Vertex<T> src, Vertex<T> dest) {
             this(src, dest, null);
         }
