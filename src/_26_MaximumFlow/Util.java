@@ -6,6 +6,7 @@ import java.util.Map;
 
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
+import static _25_AllPairsShortestPaths.Util.VertexMatrix;
 
 abstract class Util
 {
@@ -45,7 +46,7 @@ abstract class Util
         return temp;
     }
 
-    static <T> Graph<T> initializePreflow(Graph<T> graph, Vertex<T> src, Map<Vertex<T>, Node> nodes, _25_AllPairsShortestPaths.Util.VertexMatrix<T, Pipe> pipes) {
+    static <T> Graph<T> initializePreflow(Graph<T> graph, Vertex<T> src, Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
         Graph<T> resGraph = Util.createResidualGraph(graph);
 
         // init nodes
@@ -70,7 +71,7 @@ abstract class Util
         return resGraph;
     }
 
-    static <T> void relabel(Graph<T> resGraph, Vertex<T> u, Map<Vertex<T>, Node> nodes, _25_AllPairsShortestPaths.Util.VertexMatrix<T, Pipe> pipes) {
+    static <T> void relabel(Graph<T> resGraph, Vertex<T> u, Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
         int minHeight = Integer.MAX_VALUE;
         for (Vertex<T> v : resGraph.getAdjacentVerticesOf(u)) {
             if (nodes.get(u).height <= nodes.get(v).height && pipes.get(u, v).capacity - pipes.get(u, v).flow > 0)
@@ -79,7 +80,7 @@ abstract class Util
         nodes.get(u).height = minHeight + 1;
     }
 
-    static <T> void push(Vertex<T> u, Vertex<T> v, Map<Vertex<T>, Node> nodes, _25_AllPairsShortestPaths.Util.VertexMatrix<T, Pipe> pipes) {
+    static <T> void push(Vertex<T> u, Vertex<T> v, Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
         int flow = Math.min(nodes.get(u).excess, pipes.get(u, v).capacity - pipes.get(u, v).flow);
         nodes.get(u).excess -= flow;
         nodes.get(v).excess += flow;

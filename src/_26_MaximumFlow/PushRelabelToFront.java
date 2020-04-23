@@ -4,7 +4,6 @@ import _22_ElementaryGraphAlgorithms.Graph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static _26_MaximumFlow.Util.Node;
@@ -24,34 +23,43 @@ public abstract class PushRelabelToFront
         list.remove(sink);
 
         int idx = 0;
-        Vertex<T> u = list.get(idx);
+        Vertex<T> u = list.get(idx++);
         while (u != null) {
             int oldHeight = nodes.get(u).height;
-            // discharge
-            List<Vertex<T>> adj = resGraph.getAdjacentVerticesOf(u);
-            Vertex<T> v = adj.get(0);
-            int j = 0;
-            while (nodes.get(u).excess > 0) {
-                if (v == null) {
-                    Util.relabel(resGraph, u, nodes, pipes);
-                    j = 0;
-                    v = adj.get(j);
-                }
-                else if (pipes.get(u, v).capacity - pipes.get(u, v).flow > 0 && nodes.get(u).height == nodes.get(v).height + 1)
-                    Util.push(u, v, nodes, pipes);
-                else
-                    v = j + 1 >= adj.size() ? null : adj.get(++j);
-            }
-
+            discharge(resGraph, u, nodes, pipes);
             if (nodes.get(u).height > oldHeight) {
+                shiftToFront(list, idx - 1);
                 idx = 1;
-                list.remove(u);
-                list.add(0, u);
             }
             u = idx >= list.size() ? null : list.get(idx++);
         }
 
         return nodes.get(sink).excess;
+    }
+
+    private static <T> void shiftToFront(ArrayList<Vertex<T>> l, int idx) {
+        Vertex<T> u = l.get(idx);
+        for (int i = idx; i >= 1; i--)
+            l.set(i, l.get(i - 1));
+        l.set(0, u);
+    }
+
+    private static <T> void discharge(Graph<T> resGraph, Vertex<T> u, Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
+        ArrayList<Vertex<T>> adj = new ArrayList<>(resGraph.getAdjacentVerticesOf(u));
+
+        int idx = 0;
+        Vertex<T> v = adj.get(idx++);
+        while (nodes.get(u).excess > 0) {
+            if (v == null) {
+                Util.relabel(resGraph, u, nodes, pipes);
+                idx = 0;
+                v = adj.get(idx++);
+            }
+            else if (pipes.get(u, v).capacity - pipes.get(u, v).flow > 0 && nodes.get(u).height == nodes.get(v).height + 1)
+                Util.push(u, v, nodes, pipes);
+            else
+                v = idx >= adj.size() ? null : adj.get(idx++);
+        }
     }
 
     public static class Example
