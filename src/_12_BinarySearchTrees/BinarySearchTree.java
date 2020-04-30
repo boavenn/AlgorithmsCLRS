@@ -1,6 +1,10 @@
 package _12_BinarySearchTrees;
 
-public class BinarySearchTree<T extends Comparable<T>>
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+
+public class BinarySearchTree<T>
 {
     private class Node
     {
@@ -14,94 +18,161 @@ public class BinarySearchTree<T extends Comparable<T>>
     }
 
     private Node root;
+    private Comparator<T> comp;
+    private int size = 0;
 
-    public void insert(T value) {
-        Node node = new Node(value);
-        Node parent = null;
-        Node temp = root;
-        while (temp != null) {
-            parent = temp;
-            if (value.compareTo(temp.key) < 0)
-                temp = temp.left;
+    /**
+     * Creates BST with a given comparator
+     *
+     * @param comp comparator which will be used to compare elements in the BST
+     */
+    public BinarySearchTree(Comparator<T> comp) {
+        this.comp = comp;
+    }
+
+    /**
+     * Inserts given value into the BST
+     *
+     * @param v value to be inserted
+     */
+    public void insert(T v) {
+        Node newNode = new Node(v);
+        Node p = null;
+        Node n = root;
+
+        while (n != null) {
+            p = n;
+            if (comp.compare(v, n.key) < 0)
+                n = n.left;
             else
-                temp = temp.right;
+                n = n.right;
         }
 
-        if (parent == null)
-            root = node;
-        else if (value.compareTo(parent.key) < 0)
-            parent.left = node;
+        if (p == null)
+            root = newNode;
+        else if (comp.compare(v, p.key) < 0)
+            p.left = newNode;
         else
-            parent.right = node;
+            p.right = newNode;
+        size++;
     }
 
-    public void remove(T value) {
-        root = removeRec(root, value);
+    /**
+     * Removes given value from the BST if it's present
+     *
+     * @param v value to be removed
+     */
+    public void remove(T v) {
+        root = remove(root, v);
     }
 
-    public boolean contains(T value) {
-        return search(value) != null;
-    }
-
-    public void printInOrder() {
-        printInOrder(root);
-    }
-
-    private void printInOrder(Node node) {
-        if(node == null)
-            return;
-        printInOrder(node.left);
-        System.out.print(node.key + " ");
-        printInOrder(node.right);
-    }
-
-    public T minimum() {
-        Node n = minimum(root);
-        return n == null ? null : n.key;
-    }
-
-    public T maximum() {
-        Node n = maximum(root);
-        return n == null ? null : n.key;
-    }
-
-    private Node minimum(Node n) {
+    /**
+     * @param n starting node
+     * @param v value to be removed
+     * @return node that took place of the one given as the param
+     */
+    private Node remove(Node n, T v) {
         if (n == null)
             return null;
-        Node temp = n;
-        while (temp.left != null) {
-            temp = temp.left;
-        }
-        return temp;
-    }
 
-    private Node maximum(Node n) {
-        if (n == null)
-            return null;
-        Node temp = n;
-        while (temp.right != null) {
-            temp = temp.right;
-        }
-        return temp;
-    }
-
-    private Node search(T value) {
-//        return searchRecursive(root, value);
-        return searchIterative(root, value);
-    }
-
-    private Node searchRecursive(Node n, T value) {
-        if (n == null || n.key == value)
+        if (v == n.key) {
+            size--;
+            if (n.left == null && n.right == null)
+                return null;
+            if (n.left == null)
+                return n.right;
+            if (n.right == null)
+                return n.left;
+            // if node has two children
+            T min = minimum(n.right).key;
+            n.key = min;
+            n.right = remove(n.right, min);
+            // if we are removing min from a subtree we have to now negate the first size--
+            size++;
             return n;
-        if (value.compareTo(n.key) < 0)
-            return searchRecursive(n.left, value);
-        else
-            return searchRecursive(n.right, value);
+        } else if (comp.compare(v, n.key) < 0) {
+            n.left = remove(n.left, v);
+            return n;
+        } else {
+            n.right = remove(n.right, v);
+            return n;
+        }
     }
 
-    private Node searchIterative(Node n, T value) {
-        while (n != null && n.key != value) {
-            if (value.compareTo(n.key) < 0)
+    /**
+     * Checks whether the BST contains a given value
+     *
+     * @param v value to be checked
+     * @return true if value is found, false otherwise
+     */
+    public boolean contains(T v) {
+        return search(v) != null;
+    }
+
+    /**
+     * @return true if the BST is empty, false otherwise
+     */
+    public boolean isEmpty() {
+        return root == null;
+    }
+
+    /**
+     * @return number of elements in the tree
+     */
+    public int size() {
+        return size;
+    }
+
+    /**
+     * @return minimum value in the BST or null if the tree is empty
+     */
+    public T minimum() {
+        if (root == null)
+            return null;
+        return minimum(root).key;
+    }
+
+    /**
+     * @return maximum value in the BST or null if the tree is empty
+     */
+    public T maximum() {
+        if (root == null)
+            return null;
+        return maximum(root).key;
+    }
+
+    /**
+     * @param n starting node
+     * @return node with minimum value, starting from n
+     */
+    private Node minimum(Node n) {
+        Node t = n;
+        while (t.left != null) {
+            t = t.left;
+        }
+        return t;
+    }
+
+    /**
+     * @param n starting node
+     * @return node with maximum value, starting from n
+     */
+    private Node maximum(Node n) {
+        Node t = n;
+        while (t.right != null) {
+            t = t.right;
+        }
+        return t;
+    }
+
+    /**
+     * @param v value to be searched
+     * @return node with a given value or null if it's not found
+     */
+    private Node search(T v) {
+        Node n = root;
+        while (n != null && n.key != v) {
+            if (comp.compare(v, n.key) < 0)
                 n = n.left;
             else
                 n = n.right;
@@ -109,46 +180,156 @@ public class BinarySearchTree<T extends Comparable<T>>
         return n;
     }
 
-    private Node removeRec(Node n, T value) {
+    /**
+     * @param v value whose successor is to be found
+     * @return successor of v, it means element which comes after v in
+     *         an inorder traversal or null if there is no such element
+     */
+    public T successor(T v) {
+        Node n = successor(root, v);
+        return n == null ? null : n.key;
+    }
+
+    /**
+     * @param n starting node
+     * @param v value whose successor is to be found
+     * @return successor node
+     */
+    private Node successor(Node n, T v) {
         if (n == null)
             return null;
 
-        if (value == n.key) {
-            if (n.left == null && n.right == null)
-                return null;
-            if (n.left == null)
-                return n.right;
-            if (n.right == null)
-                return n.left;
-            T min = minimum(n.right).key;
-            n.key = min;
-            n.right = removeRec(n.right, min);
-            return n;
+        if (n.key == v) {
+            if (n.right != null)
+                return minimum(n.right);
+            return null;
+        } else if (comp.compare(v, n.key) < 0) {
+            Node t = successor(n.left, v);
+            return t == null ? n : t;
+        } else {
+            return successor(n.right, v);
         }
-        else if (value.compareTo(n.key) < 0) {
-            n.left = removeRec(n.left, value);
-            return n;
+    }
+
+    /**
+     * @param v value whose predecessor is to be found
+     * @return predecessor of v, it means element which comes before v in
+     *         an inorder traversal or null if there is no such element
+     */
+    public T predecessor(T v) {
+        Node n = predecessor(root, v);
+        return n == null ? null : n.key;
+    }
+
+    /**
+     * @param n starting node
+     * @param v value whose predecessor is to be found
+     * @return predecessor node
+     */
+    private Node predecessor(Node n, T v) {
+        if (n == null)
+            return null;
+
+        if (n.key == v) {
+            if (n.left != null)
+                return maximum(n.left);
+            return null;
+        } else if (comp.compare(v, n.key) > 0) {
+            Node t = predecessor(n.right, v);
+            return t == null ? n : t;
+        } else {
+            return predecessor(n.left, v);
         }
-        else {
-            n.right = removeRec(n.right, value);
-            return n;
-        }
+    }
+
+    /**
+     * Traverses tree in a preorder way (root first, children next)
+     *
+     * @return list containing elements in the given order
+     */
+    public List<T> preorderWalk() {
+        List<T> l = new LinkedList<>();
+        preorderWalk(root, l);
+        return l;
+    }
+
+    private void preorderWalk(Node n, List<T> l) {
+        if (n == null)
+            return;
+        l.add(n.key);
+        preorderWalk(n.left, l);
+        preorderWalk(n.right, l);
+    }
+
+    /**
+     * Traverses tree in a inorder way (left child first, root and right one next)
+     *
+     * @return list containing elements in the given order
+     */
+    public List<T> inOrderWalk() {
+        List<T> l = new LinkedList<>();
+        inOrderWalk(root, l);
+        return l;
+    }
+
+    private void inOrderWalk(Node n, List<T> l) {
+        if (n == null)
+            return;
+        inOrderWalk(n.left, l);
+        l.add(n.key);
+        inOrderWalk(n.right, l);
+    }
+
+    /**
+     * Traverses tree in a postorder way (children first, root next)
+     *
+     * @return list containing elements in the given order
+     */
+    public List<T> postOrderWalk() {
+        List<T> l = new LinkedList<>();
+        postOrderWalk(root, l);
+        return l;
+    }
+
+    private void postOrderWalk(Node n, List<T> l) {
+        if (n == null)
+            return;
+        postOrderWalk(n.left, l);
+        postOrderWalk(n.right, l);
+        l.add(n.key);
     }
 
     private static class Example
     {
         public static void main(String[] args) {
-            BinarySearchTree<Integer> bst = new BinarySearchTree<>();
-            bst.insert(5);
-            bst.insert(2);
-            bst.insert(3);
-            bst.insert(7);
-            System.out.println(bst.maximum());
-            System.out.println(bst.minimum());
-            bst.remove(7);
-            System.out.println(bst.contains(3));
-            System.out.println(bst.maximum());
-            bst.printInOrder();
+            BinarySearchTree<Integer> bst = new BinarySearchTree<>(Integer::compareTo);
+            Integer[] nodes = {10, 6, 13, 4, 8, 11, 14, 5, 7, 9, 12, 15};
+            for (Integer i : nodes)
+                bst.insert(i);
+
+            System.out.println("Preorder walk: " + bst.preorderWalk());
+            System.out.println("Inorder walk: " + bst.inOrderWalk());
+            System.out.println("Postorder walk: " + bst.postOrderWalk());
+
+            System.out.println("Successor of 5: " + bst.successor(5));
+            System.out.println("Predecessor of 6: " + bst.predecessor(6));
+            System.out.println("Successor of 10: " + bst.successor(10));
+            System.out.println("Predecessor of 11: " + bst.predecessor(11));
+
+            System.out.println("\nTree min: " + bst.minimum());
+            System.out.println("Tree max: " + bst.maximum());
+
+            System.out.println("\nContains 10? - " + bst.contains(10));
+            System.out.println("Contains 2? - " + bst.contains(2));
+            System.out.println("Size: " + bst.size());
+
+            System.out.println("\nRemoving 10 and 8...");
+            bst.remove(10);
+            bst.remove(8);
+
+            System.out.println("\nContains 10? - " + bst.contains(10));
+            System.out.println("Inorder walk: " + bst.inOrderWalk());
+            System.out.println("Size: " + bst.size());
         }
     }
 }
