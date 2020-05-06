@@ -9,7 +9,7 @@ import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
 public abstract class PrimAlgorithm
 {
-    public static <T> List<Edge<T>> calc(Graph<T> graph) {
+    public static <T> List<Edge<T>> calc(Graph<T> graph, Vertex<T> root) {
         List<Vertex<T>> vertices = graph.getVertices();
         // result minimum path
         List<Edge<T>> result = new LinkedList<>();
@@ -18,9 +18,8 @@ public abstract class PrimAlgorithm
         // priority queue to sort edges by weight
         PriorityQueue<Edge<T>> queue = new PriorityQueue<>(Comparator.comparingInt(Edge::getWeight));
 
-        Vertex<T> v = vertices.get(0);
-        visited.put(v, true);
-        queue.addAll(graph.getAdjacentEdgesOf(v));
+        visited.put(root, true);
+        queue.addAll(graph.getAdjacentEdgesOf(root));
 
         while (visited.size() != vertices.size()) {
             Edge<T> min = queue.poll();
@@ -32,10 +31,8 @@ public abstract class PrimAlgorithm
                 throw new IllegalArgumentException("Cannot create MSP from a given graph");
 
             result.add(min);
-
-            v = min.getDest();
-            visited.put(v, true);
-            queue.addAll(graph.getAdjacentEdgesOf(v));
+            visited.put(min.getDest(), true);
+            queue.addAll(graph.getAdjacentEdgesOf(min.getDest()));
         }
 
         return result;
@@ -61,7 +58,7 @@ public abstract class PrimAlgorithm
                 graph.addEdge(E[i][0], E[i][1], W[i]);
 
             System.out.println(graph);
-            System.out.println(PrimAlgorithm.calc(graph));
+            System.out.println(PrimAlgorithm.calc(graph, new Vertex<>('a')));
         }
     }
 }
