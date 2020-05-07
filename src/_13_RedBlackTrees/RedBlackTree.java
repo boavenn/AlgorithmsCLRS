@@ -1,5 +1,7 @@
 package _13_RedBlackTrees;
 
+import _12_BinarySearchTrees.BinarySearchTree;
+
 import java.util.Comparator;
 
 /*
@@ -137,6 +139,48 @@ public class RedBlackTree<T>
             t = t.right;
         }
         return t;
+    }
+
+    public T successor(T key) {
+        Node n = successor(root, key);
+        return n == sentinel ? null : n.key;
+    }
+
+    private Node successor(Node n, T key) {
+        if (n == sentinel)
+            return sentinel;
+
+        if (n.key == key) {
+            if (n.right != sentinel)
+                return minimum(n.right);
+            return sentinel;
+        } else if (comp.compare(key, n.key) < 0) {
+            Node t = successor(n.left, key);
+            return t == sentinel ? n : t;
+        } else {
+            return successor(n.right, key);
+        }
+    }
+
+    public T predecessor(T key) {
+        Node n = predecessor(root, key);
+        return n == sentinel ? null : n.key;
+    }
+
+    private Node predecessor(Node n, T key) {
+        if (n == sentinel)
+            return sentinel;
+
+        if (n.key == key) {
+            if (n.left != sentinel)
+                return maximum(n.left);
+            return sentinel;
+        } else if (comp.compare(key, n.key) > 0) {
+            Node t = predecessor(n.right, key);
+            return t == sentinel ? n : t;
+        } else {
+            return predecessor(n.left, key);
+        }
     }
 
     private Node search(T key) {
