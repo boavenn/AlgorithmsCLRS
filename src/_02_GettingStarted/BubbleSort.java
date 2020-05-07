@@ -2,27 +2,24 @@ package _02_GettingStarted;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Random;
 
-/*
-Time complexity: O(n^2)
-Auxiliary space: O(1)
-In-place: yes
-Stable: yes
- */
-
-public abstract class BubbleSort
+public final class BubbleSort
 {
-    public static <T> void sort(T[] arr, Comparator<T> comparator) {
-        for(int i = 0; i < arr.length - 1; i++)
-            for(int j = arr.length - 1; j > i; j--)
-                if(comparator.compare(arr[j], arr[j - 1]) < 0)
+    public static <T> void sort(T[] arr, Comparator<T> comp) {
+        boolean swapped;
+        for(int i = 0; i < arr.length - 1; i++) {
+            swapped = false;
+            for(int j = arr.length - 1; j > i; j--) {
+                if(comp.compare(arr[j], arr[j - 1]) < 0) {
                     swap(arr, j, j - 1);
-        /*
-        for(int i = 0; i < arr.length - 1; i++)
-            for(int j = 0; j < arr.length - 1 - i; j++)
-                if(comparator.compare(arr[j], arr[j + 1]) > 0)
-                    swap(arr, j, j + 1);
-         */
+                    swapped = true;
+                }
+            }
+
+            if (!swapped)
+                break;
+        }
     }
 
     private static <T> void swap(T[] arr, int i, int j) {
@@ -31,9 +28,16 @@ public abstract class BubbleSort
         arr[j] = temp;
     }
 
-    public static void main(String[] args) {
-        Integer[] arr = {2, 6, 3, 3, 0, 19, 2, 3, 4, 5, 5};
-        sort(arr, Integer::compareTo);
-        System.out.println(Arrays.toString(arr));
+    private static class Example
+    {
+        public static void main(String[] args) {
+            Integer[] arr = new Integer[50];
+            Random r = new Random();
+            for(int i = 0; i < arr.length; i++)
+                arr[i] = r.nextInt(1000);
+
+            sort(arr, Integer::compareTo);
+            System.out.println(Arrays.toString(arr));
+        }
     }
 }

@@ -1,55 +1,43 @@
 package _06_Heapsort;
 
-/*
-Time complexity: O(nlogn)
-Auxiliary space: O(1)
-In-place: yes
-Stable: not in this implementation
- */
-
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Random;
 
-public abstract class HeapSort
+public final class HeapSort
 {
-    public static <T> void sort(T[] arr, Comparator<T> comparator) {
+    public static <T> void sort(T[] arr, Comparator<T> comp) {
         int heapSize = arr.length;
-        buildHeap(arr, comparator, heapSize);
+        buildHeap(arr, comp, heapSize);
         for(int i = arr.length - 1; i >= 1; i--) {
             swap(arr, 0, i);
             heapSize--;
-            heapify(arr, comparator, heapSize, 0);
+            heapify(arr, comp, heapSize, 0);
         }
     }
 
-    /*
-    parent(i) = (i - 1) / 2
-    left(i) = 2 * i + 1
-    right(i) = 2 * i + 2
-     */
-
-    private static <T> void heapify(T[] arr, Comparator<T> comparator, int heapSize, int i) {
-        int l = 2 * i + 1;
-        int r = l + 1;
+    private static <T> void heapify(T[] arr, Comparator<T> comp, int heapSize, int i) {
+        int left = 2 * i + 1;
+        int right = left + 1;
         int largest;
 
-        if(l < heapSize && comparator.compare(arr[l], arr[i]) > 0)
-            largest = l;
+        if(left < heapSize && comp.compare(arr[left], arr[i]) > 0)
+            largest = left;
         else
             largest = i;
 
-        if(r < heapSize && comparator.compare(arr[r], arr[largest]) > 0)
-            largest = r;
+        if(right < heapSize && comp.compare(arr[right], arr[largest]) > 0)
+            largest = right;
 
         if(largest != i) {
             swap(arr, i, largest);
-            heapify(arr, comparator, heapSize, largest);
+            heapify(arr, comp, heapSize, largest);
         }
     }
 
-    private static <T> void buildHeap(T[] arr, Comparator<T> comparator, int heapSize) {
+    private static <T> void buildHeap(T[] arr, Comparator<T> comp, int heapSize) {
         for(int i = arr.length / 2 - 1; i >= 0; i--)
-            heapify(arr, comparator, heapSize, i);
+            heapify(arr, comp, heapSize, i);
     }
 
     private static <T> void swap(T[] arr, int i, int j) {
@@ -58,9 +46,16 @@ public abstract class HeapSort
         arr[j] = temp;
     }
 
-    public static void main(String[] args) {
-        Integer[] arr = {2, 6, 3, 3, 0, 19, 2, 3, 4, 5, 5};
-        sort(arr, Integer::compareTo);
-        System.out.println(Arrays.toString(arr));
+    private static class Example
+    {
+        public static void main(String[] args) {
+            Integer[] arr = new Integer[50];
+            Random r = new Random();
+            for(int i = 0; i < arr.length; i++)
+                arr[i] = r.nextInt(1000);
+
+            sort(arr, Integer::compareTo);
+            System.out.println(Arrays.toString(arr));
+        }
     }
 }

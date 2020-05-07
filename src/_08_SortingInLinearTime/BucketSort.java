@@ -1,53 +1,41 @@
 package _08_SortingInLinearTime;
 
+import _02_GettingStarted.InsertionSort;
+
 import java.util.*;
 
-/*
-Time complexity: O(n) if input is uniformly distributed, O(n^2) otherwise
-Auxiliary space: O(n * k)
-In-place: no
-Stable: yes
-
-k - number of buckets
- */
-
-public abstract class BucketSort
+public final class BucketSort
 {
-    public static void sort(double[] arr) {
-        int n = arr.length;
-        List<List<Double>> buckets = new ArrayList<>();
+    public static void sort(Integer[] arr, Integer max) {
+        int numOfBuckets = (int) Math.sqrt(arr.length) + 1;
+        List<List<Integer>> buckets = new ArrayList<>(numOfBuckets);
+        for (int i = 0; i < numOfBuckets; i++)
+            buckets.add(new LinkedList<>());
 
-        for (int i = 0; i < n; i++)
-            buckets.add(new ArrayList<>());
-
-        for (double value : arr)
-            buckets.get((int) Math.floor(n * value)).add(value);
-
-        for (List<Double> l : buckets) {
-            insertionSort(l);
+        for (Integer v : arr) {
+            int idx = v * (numOfBuckets - 1) / max;
+            buckets.get(idx).add(v);
         }
 
-        int idx = 0;
-        for(List<Double> l : buckets)
-            for(Double value : l)
-                arr[idx++] = value;
-    }
-
-    private static void insertionSort(List<Double> list) {
-        for (int j = 1; j < list.size(); j++) {
-            double key = list.get(j);
-            int i = j - 1;
-            while (i >= 0 && list.get(i) > key) {
-                list.set(i + 1, list.get(i));
-                i--;
-            }
-            list.set(i + 1, key);
+        int i = 0;
+        for(List<Integer> l : buckets) {
+            for(Integer v : l)
+                arr[i++] = v;
         }
+
+        InsertionSort.sort(arr, Integer::compareTo);
     }
 
-    public static void main(String[] args) {
-        double[] arr = {0.78, 0.17, 0.39, 0.26, 0.72, 0.94, 0.21, 0.12, 0.23, 0.68};
-        sort(arr);
-        System.out.println(Arrays.toString(arr));
+    private static class Example
+    {
+        public static void main(String[] args) {
+            Integer[] arr = new Integer[50];
+            Random r = new Random();
+            for(int i = 0; i < arr.length; i++)
+                arr[i] = r.nextInt(1000);
+
+            sort(arr, 999);
+            System.out.println(Arrays.toString(arr));
+        }
     }
 }
