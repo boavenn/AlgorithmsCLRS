@@ -1,6 +1,7 @@
 package _33_ComputationalGeometry;
 
 import _12_BinarySearchTrees.BinarySearchTree;
+import _13_RedBlackTrees.RedBlackTree;
 
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -35,8 +36,7 @@ public final class AnySegmentsIntersect
     };
 
     public static boolean anySegmentsIntersect(List<Segment> segments) {
-        // TODO: change to red-black tree
-        BinarySearchTree<PointWrapper> bst = new BinarySearchTree<>(Comparator.comparingDouble(p -> p.point.getY()));
+        RedBlackTree<PointWrapper> rbt = new RedBlackTree<>(Comparator.comparingDouble(p -> p.point.getY()));
         PriorityQueue<PointWrapper> points = new PriorityQueue<>(comp);
 
         for (Segment s : segments) {
@@ -50,18 +50,18 @@ public final class AnySegmentsIntersect
 
         while (!points.isEmpty()) {
             PointWrapper p = points.poll();
-            PointWrapper above = bst.successor(p);
-            PointWrapper below = bst.predecessor(p);
+            PointWrapper above = rbt.successor(p);
+            PointWrapper below = rbt.predecessor(p);
             if (p.isLeft) {
-                bst.insert(p);
+                rbt.insert(p);
                 if ((above != null && segmentsIntersect(above.segment, p.segment)) ||
                         (below != null && segmentsIntersect(below.segment, p.segment)))
                     return true;
             } else {
                 if (above != null && below != null && segmentsIntersect(above.segment, below.segment))
                     return true;
-                bst.remove(p);
-                bst.remove(p.otherEnd);
+                rbt.remove(p);
+                rbt.remove(p.otherEnd);
             }
         }
         return false;
