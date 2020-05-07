@@ -2,6 +2,9 @@ package _13_RedBlackTrees;
 
 import java.util.Comparator;
 
+/*
+ * Disclaimer: yeah i know it's not a red-black tree
+ */
 public class AVLTree<T>
 {
     private static class Node<T>
@@ -40,6 +43,9 @@ public class AVLTree<T>
     }
 
     public void insert(T key) {
+        if(contains(key))
+            return;
+
         root = insert(root, key);
         size++;
     }
@@ -51,11 +57,10 @@ public class AVLTree<T>
         if (comp.compare(key, n.key) < 0) {
             n.left = insert(n.left, key);
             n.left.parent = n;
-        } else if (comp.compare(key, n.key) > 0) {
+        } else {
             n.right = insert(n.right, key);
             n.right.parent = n;
-        } else
-            return n;
+        }
 
         updateHeightOf(n);
         return rebalance(n);
