@@ -1,9 +1,7 @@
 package _04_DivideAndConquer;
 
-/*
-Works only if size of matrix A and B is n*n where n = 2^k (k > 1)
- */
-public abstract class RecursiveMatrixMultiplication
+// Works only if size of matrix A and B is n*n where n = 2^k (k > 1)
+public final class RecursiveMatrixMultiplication
 {
     public static int[][] calc(int[][] A, int[][] B) {
         int n = A.length;
@@ -32,7 +30,10 @@ public abstract class RecursiveMatrixMultiplication
         return C;
     }
 
-    // we can get rid of this method and do operations on indexes but lets keep it for simplicity
+    /*
+     * We can get rid of this method and do operations on indices but lets keep it for simplicity
+     * (Similar implementation on indices is in the chapter 27 - SquareMatrixMultiplyRecursive)
+     */
     private static int[][] divideMatrix(int[][] src, int n, int y, int x) {
         int[][] temp = new int[n][n];
         for(int i = 0; i < n; i++)
@@ -57,9 +58,22 @@ public abstract class RecursiveMatrixMultiplication
         }
     }
 
-    public static void main(String[] args) {
-        int[][] A = {{1, 2}, {4, 3}};
-        int[][] B = {{4, 1}, {2, 4}};
-        printMatrix(calc(A, B));
+    private static class Example
+    {
+        public static void main(String[] args) {
+            int[][] a = {
+                    {1, 2, 2, 3},
+                    {1, 2, 2, 1},
+                    {3, 3, 1, 2},
+                    {1, 2, 1, 1}
+            };
+            int[][] b = {
+                    {1, 2, 3, 1},
+                    {1, 1, 3, 2},
+                    {2, 1, 2, 3},
+                    {2, 3, 1, 1}
+            };
+            printMatrix(calc(a, b));
+        }
     }
 }

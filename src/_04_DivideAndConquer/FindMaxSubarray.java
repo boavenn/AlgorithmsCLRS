@@ -1,25 +1,9 @@
 package _04_DivideAndConquer;
 
-public abstract class FindMaxSubarray
+public final class FindMaxSubarray
 {
-    public static int find(int[] arr) {
+    public static int recursive(int[] arr) {
         return findMaxSubarray(arr, 0, arr.length - 1);
-    }
-
-    // bonus - Kadane's algorithm
-    public static int findIterative(int[] arr) {
-        int sum = 0;
-        int max_sum = 0;
-
-        for (int value : arr) {
-            sum += value;
-            if (sum < 0)
-                sum = 0;
-            if (sum > max_sum)
-                max_sum = sum;
-        }
-
-        return max_sum;
     }
 
     private static int findMaxCrossingSubarray(int[] arr, int begin, int mid, int end) {
@@ -53,9 +37,28 @@ public abstract class FindMaxSubarray
         return Math.max(Math.max(leftSum, crossSum), rightSum);
     }
 
-    public static void main(String[] args) {
-        int[] arr = {13, -3, -25, 20, -3, -16, -23, 18, 20, -7, 12, -5, -22, 15, -4, 7};
-        System.out.println(find(arr));
-        System.out.println(findIterative(arr));
+    // Kadane's algorithm
+    public static int iterative(int[] arr) {
+        int sum = 0;
+        int max_sum = 0;
+
+        for (int value : arr) {
+            sum += value;
+            if (sum < 0)
+                sum = 0;
+            if (sum > max_sum)
+                max_sum = sum;
+        }
+
+        return max_sum;
+    }
+
+    private static class Example
+    {
+        public static void main(String[] args) {
+            int[] arr = {13, -3, -25, 20, -3, -16, -23, 18, 20, -7, 12, -5, -22, 15, -4, 7};
+            System.out.println(recursive(arr));
+            System.out.println(iterative(arr));
+        }
     }
 }

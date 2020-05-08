@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public class HashTable<K, V>
 {
-    private class HashNode
+    private static class HashNode<K, V>
     {
-        K key;
-        V value;
-        HashNode next;
+        private K key;
+        private V value;
+        private HashNode<K, V> next;
 
         public HashNode(K key, V value) {
             this.key = key;
@@ -18,13 +18,13 @@ public class HashTable<K, V>
 
     private final static int DEFAULT_CAPACITY = 10;
     private final static float CAPACITY_THRESHOLD = 0.75f;
-    private ArrayList<HashNode> buckets = new ArrayList<>();
+    private ArrayList<HashNode<K, V>> buckets = new ArrayList<>();
     private int capacity;
     private int size = 0;
 
     public HashTable(int capacity) {
-        this.capacity = capacity;
-        for (int i = 0; i < capacity; i++)
+        this.capacity = Math.max(capacity, DEFAULT_CAPACITY);
+        for (int i = 0; i < this.capacity; i++)
             buckets.add(null);
     }
 
@@ -36,21 +36,18 @@ public class HashTable<K, V>
         return Math.abs(key.hashCode()) % capacity;
     }
 
-    public void add(K key, V value) {
+    public void put(K key, V value) {
         int bucketIdx = getBucketIdx(key);
-        HashNode head = buckets.get(bucketIdx);
-        HashNode node = new HashNode(key, value);
 
-        while (head != null) {
-            if (head.key.equals(key)) {
-                head.value = value;
-                return;
-            }
-            head = head.next;
+        // update value if the key already exists
+        HashNode<K, V> t = find(key, bucketIdx);
+        if (t != null) {
+            t.value = value;
+            return;
         }
 
-        head = buckets.get(bucketIdx);
-        node.next = head;
+        HashNode<K, V> node = new HashNode<>(key, value);
+        node.next = buckets.get(bucketIdx);
         buckets.set(bucketIdx, node);
         size++;
 
@@ -60,9 +57,9 @@ public class HashTable<K, V>
 
     public V remove(K key) {
         int bucketIdx = getBucketIdx(key);
-        HashNode head = buckets.get(bucketIdx);
+        HashNode<K, V> head = buckets.get(bucketIdx);
 
-        HashNode prev = null;
+        HashNode<K, V> prev = null;
         while (head != null) {
             if (head.key.equals(key))
                 break;
@@ -82,16 +79,8 @@ public class HashTable<K, V>
     }
 
     public V get(K key) {
-        int bucketIdx = getBucketIdx(key);
-        HashNode head = buckets.get(bucketIdx);
-
-        while (head != null) {
-            if (head.key.equals(key))
-                return head.value;
-            head = head.next;
-        }
-
-        return null;
+        HashNode<K, V> n = find(key, getBucketIdx(key));
+        return n == null ? null : n.value;
     }
 
     public int size() {
@@ -102,8 +91,22 @@ public class HashTable<K, V>
         return size == 0;
     }
 
+    public boolean contains(K key) {
+        return find(key, getBucketIdx(key)) != null;
+    }
+
+    private HashNode<K, V> find(K key, int idx) {
+        HashNode<K, V> n = buckets.get(idx);
+        while (n != null) {
+            if (n.key.equals(key))
+                return n;
+            n = n.next;
+        }
+        return null;
+    }
+
     private void resize() {
-        ArrayList<HashNode> temp = buckets;
+        ArrayList<HashNode<K, V>> temp = buckets;
         buckets = new ArrayList<>();
         capacity *= 2;
         size = 0;
@@ -111,9 +114,9 @@ public class HashTable<K, V>
         for (int i = 0; i < capacity; i++)
             buckets.add(null);
 
-        for (HashNode node : temp) {
+        for (HashNode<K, V> node : temp) {
             while (node != null) {
-                add(node.key, node.value);
+                put(node.key, node.value);
                 node = node.next;
             }
         }
@@ -123,12 +126,13 @@ public class HashTable<K, V>
     {
         public static void main(String[] args) {
             HashTable<String, Integer> hashTable = new HashTable<>(3);
-            hashTable.add("one", 1);
-            hashTable.add("two", 2);
-            hashTable.add("three", -20);
-            hashTable.add("three", 3);
-            hashTable.add("four", 4);
-            hashTable.add("five", 5);
+            hashTable.put("one", 1);
+            hashTable.put("two", 2);
+            hashTable.put("three", -20);
+            hashTable.put("three", 3);
+            hashTable.put("four", 4);
+            hashTable.put("five", 5);
+            System.out.println("Contains one: " + hashTable.contains("one"));
             System.out.println("Size: " + hashTable.size());
             System.out.println("Three: " + hashTable.get("three"));
             hashTable.remove("five");
