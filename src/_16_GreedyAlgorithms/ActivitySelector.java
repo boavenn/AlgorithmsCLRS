@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class ActivitySelector
+public final class ActivitySelector
 {
     public static int[] greedyActivitySelector(int[] s, int[] f) {
         int n = s.length;

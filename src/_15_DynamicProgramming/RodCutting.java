@@ -2,7 +2,7 @@ package _15_DynamicProgramming;
 
 import java.util.Arrays;
 
-public abstract class RodCutting
+public final class RodCutting
 {
     // recursion with memoization
     public static int memoizedCutRod(int[] p, int n) {

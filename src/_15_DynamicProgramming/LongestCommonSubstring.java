@@ -2,7 +2,7 @@ package _15_DynamicProgramming;
 
 import java.util.Arrays;
 
-public abstract class LongestCommonSubstring
+public final class LongestCommonSubstring
 {
     public static Result lcsLength(String X, String Y) {
         int m = X.length();

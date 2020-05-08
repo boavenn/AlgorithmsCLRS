@@ -2,7 +2,7 @@ package _15_DynamicProgramming;
 
 import java.util.Formatter;
 
-public abstract class OptimalBinarySeachTree
+public final class OptimalBinarySeachTree
 {
     public static Result optimalBST(double[] p, double[] q, int n) {
         Result res = new Result(n);
@@ -60,6 +60,18 @@ public abstract class OptimalBinarySeachTree
         }
     }
 
+    private static void printArr(double[] arr) {
+        StringBuilder str = new StringBuilder();
+        str.append("[");
+        Formatter fmt = new Formatter();
+        for (double d : arr)
+            fmt.format("%-4.4s, ", d);
+        str.append(fmt);
+        int i = str.lastIndexOf(",");
+        str.replace(i, i + 2, "]");
+        System.out.println(str);
+    }
+
     private static class Example
     {
         public static void main(String[] args) {
@@ -71,17 +83,5 @@ public abstract class OptimalBinarySeachTree
             System.out.println();
             constructOptimalBST(res.root, 1, 5, 0);
         }
-    }
-
-    private static void printArr(double[] arr) {
-        StringBuilder str = new StringBuilder();
-        str.append("[");
-        Formatter fmt = new Formatter();
-        for (double d : arr)
-            fmt.format("%-4.4s, ", d);
-        str.append(fmt);
-        int i = str.lastIndexOf(",");
-        str.replace(i, i + 2, "]");
-        System.out.println(str);
     }
 }
