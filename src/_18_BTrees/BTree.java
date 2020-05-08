@@ -1,46 +1,41 @@
 package _18_BTrees;
 
+import java.util.Comparator;
+
 /*
-B-tree properties:
-1. Every node x has given properties:
-   a) n - number of keys
-   b) n keys sorted in increasing order
-   c) isLeaf - true if x is leaf, false otherwise
-2. Every internal node contains x.n + 1 pointers to its children
-3. All leaves are at the same level
-4. Every node except root must contain atleast t - 1 keys. Root may contain minimum 1 key
-5. All nodes (including root) may contain at most 2t - 1 keys
-
-t - tree order
-
-A lot of assumptions have been made to make the code cleaner, so
-normally you'd want to throw some exceptions here and there
+ * B-Tree properties:
+ * 1. Every node has n keys sorted in increasing
+ * 2. Every internal (non-leaf) node has n + 1 children
+ * 3. All leaves are at the same level
+ * 4. Every node except root must contain atleast M - 1 keys
+ * 5. All nodes may contain at most 2M - 1 keys
+ *
+ * M - tree order (note that definition of a tree order is inconsistent)
  */
-
-public class BTree<T extends Comparable<T>>
+public class BTree<T>
 {
-    private static class Node<T extends Comparable<T>>
+    private class Node
     {
         private int n;
         private T[] keys;
         private boolean isLeaf;
-        private Node<T>[] children;
-        private Node<T> parent;
+        private Node[] children;
+        private Node parent;
 
         @SuppressWarnings("unchecked")
-        public Node(int t, boolean isLeaf) {
+        public Node(boolean isLeaf) {
             this.isLeaf = isLeaf;
-            this.keys = (T[]) new Comparable[2 * t - 1];
-            this.children = new Node[2 * t];
+            this.keys = (T[]) new Object[2 * order - 1];
+            this.children = new BTree.Node[2 * order];
             this.n = 0;
         }
 
-        public Node<T> search(T key) {
+        public Node search(T key) {
             int i = 0;
-            while (i < n && keys[i].compareTo(key) < 0)
+            while (i < n && comp.compare(keys[i], key) < 0)
                 i++;
 
-            if (i < n && keys[i].compareTo(key) == 0)
+            if (i < n && comp.compare(keys[i], key) == 0)
                 return this;
             else if (isLeaf)
                 return null;
@@ -48,10 +43,9 @@ public class BTree<T extends Comparable<T>>
                 return children[i].search(key);
         }
 
-        // we assume that n < maxKeys
         public void addKey(T key) {
             int i = n - 1;
-            while (i >= 0 && keys[i].compareTo(key) > 0) {
+            while (i >= 0 && comp.compare(keys[i], key) > 0) {
                 keys[i + 1] = keys[i];
                 i--;
             }
@@ -59,8 +53,10 @@ public class BTree<T extends Comparable<T>>
             n++;
         }
 
-        // we assume that the idx is correct
         public T removeKey(int idx) {
+            if (idx < 0 || idx >= n)
+                throw new IllegalArgumentException();
+
             T v = keys[idx];
             int j;
             for (j = idx; j < n - 1; j++)
@@ -70,11 +66,12 @@ public class BTree<T extends Comparable<T>>
             return v;
         }
 
-        // we assume that the key exists in the array
         public int indexOf(T key) {
             int i = 0;
-            while (keys[i].compareTo(key) != 0)
+            while (i < n && comp.compare(keys[i], key) != 0)
                 i++;
+            if (i == n)
+                return -1;
             return i;
         }
 
@@ -82,20 +79,23 @@ public class BTree<T extends Comparable<T>>
             return removeKey(indexOf(key));
         }
 
-        public void appendChild(Node<T> c) {
+        public void appendChild(Node c) {
             children[n] = c;
             c.parent = this;
         }
 
-        public void prependChild(Node<T> c) {
-            for (int i = n - 1; i >= 0; i--)
-                children[i + 1] = children[i];
+        public void prependChild(Node c) {
+            if (n > 0)
+                System.arraycopy(children, 0, children, 1, n);
             children[0] = c;
             c.parent = this;
         }
 
-        public Node<T> removeChild(int idx) {
-            Node<T> c = children[idx];
+        public Node removeChild(int idx) {
+            if (idx < 0 || idx > n)
+                throw new IllegalArgumentException();
+
+            Node c = children[idx];
             int j;
             for (j = idx; j < n; j++)
                 children[j] = children[j + 1];
@@ -104,33 +104,36 @@ public class BTree<T extends Comparable<T>>
         }
     }
 
-    private Node<T> root;
-    private int t;
+    private Comparator<T> comp;
+    private Node root;
+    private int order;
+    private int size;
     private int minKeys;
     private int minChildren;
     private int maxKeys;
     private int maxChildren;
 
-    public BTree(int t) {
-        this.t = t;
-        this.minKeys = t - 1;
-        this.minChildren = t;
-        this.maxKeys = 2 * t - 1;
-        this.maxChildren = 2 * t;
-        this.root = new Node<>(t, true);
+    public BTree(int order, Comparator<T> comp) {
+        this.comp = comp;
+        this.order = order;
+        this.minKeys = order - 1;
+        this.minChildren = order;
+        this.maxKeys = 2 * order - 1;
+        this.maxChildren = 2 * order;
+        this.root = new Node(true);
     }
 
-    private int indexOf(Node<T> x) {
+    private int indexOf(Node x) {
         if (x.parent == null)
             return -1;
-        Node<T> p = x.parent;
+        Node p = x.parent;
         int i = 0;
         while (p.children[i] != x)
             i++;
         return i;
     }
 
-    private Node<T> rightSiblingOf(Node<T> x) {
+    private Node rightSiblingOf(Node x) {
         int i = indexOf(x);
         if (i == -1)
             return null;
@@ -140,7 +143,7 @@ public class BTree<T extends Comparable<T>>
             return null;
     }
 
-    private Node<T> leftSiblingOf(Node<T> x) {
+    private Node leftSiblingOf(Node x) {
         int i = indexOf(x);
         if (i == -1)
             return null;
@@ -150,48 +153,48 @@ public class BTree<T extends Comparable<T>>
             return null;
     }
 
-    private Node<T> leftSubtreeOf(Node<T> x, T key) {
+    private Node leftSubtreeOf(Node x, T key) {
         return x.children[x.indexOf(key)];
     }
 
-    private Node<T> rightSubtreeOf(Node<T> x, T key) {
+    private Node rightSubtreeOf(Node x, T key) {
         return x.children[x.indexOf(key) + 1];
     }
 
-    private Node<T> predecessorLeafOf(Node<T> x, T key) {
-        Node<T> subtree = leftSubtreeOf(x, key);
+    private Node predecessorLeafOf(Node x, T key) {
+        Node subtree = leftSubtreeOf(x, key);
         while (!subtree.isLeaf) {
             subtree = subtree.children[subtree.n];
         }
         return subtree;
     }
 
-    private Node<T> successorLeafOf(Node<T> x, T key) {
-        Node<T> subtree = rightSubtreeOf(x, key);
+    private Node successorLeafOf(Node x, T key) {
+        Node subtree = rightSubtreeOf(x, key);
         while (!subtree.isLeaf) {
             subtree = subtree.children[0];
         }
         return subtree;
     }
 
-    private void rightRotation(Node<T> leftSibling, Node<T> x) {
-        Node<T> parent = x.parent;
-        x.addKey(parent.removeKey(indexOf(leftSibling)));
-        parent.addKey(leftSibling.removeKey(leftSibling.n - 1));
+    private void rightRotation(Node leftSiblingOfX, Node x) {
+        Node parent = x.parent;
+        x.addKey(parent.removeKey(indexOf(leftSiblingOfX)));
+        parent.addKey(leftSiblingOfX.removeKey(leftSiblingOfX.n - 1));
         if (!x.isLeaf)
-            x.prependChild(leftSibling.removeChild(leftSibling.n));
+            x.prependChild(leftSiblingOfX.removeChild(leftSiblingOfX.n));
     }
 
-    private void leftRotation(Node<T> rightSibling, Node<T> x) {
-        Node<T> parent = x.parent;
-        x.addKey(parent.removeKey(indexOf(rightSibling) - 1));
-        parent.addKey(rightSibling.removeKey(0));
+    private void leftRotation(Node rightSiblingOfX, Node x) {
+        Node parent = x.parent;
+        x.addKey(parent.removeKey(indexOf(rightSiblingOfX) - 1));
+        parent.addKey(rightSiblingOfX.removeKey(0));
         if (!x.isLeaf)
-            x.appendChild(rightSibling.removeChild(0));
+            x.appendChild(rightSiblingOfX.removeChild(0));
     }
 
-    private void merge(Node<T> left, Node<T> right) {
-        Node<T> parent = left.parent;
+    private void merge(Node left, Node right) {
+        Node parent = left.parent;
         parent.removeChild(indexOf(right));
         left.addKey(parent.removeKey(indexOf(left)));
 
@@ -199,8 +202,7 @@ public class BTree<T extends Comparable<T>>
             // leaf has no children so only keys have to be moved
             for (int i = 0; i < right.n; i++)
                 left.addKey(right.keys[i]);
-        }
-        else {
+        } else {
             // if a node isn't leaf we need to move children as well
             int i;
             for (i = 0; i < right.n; i++) {
@@ -220,16 +222,16 @@ public class BTree<T extends Comparable<T>>
             rebalance(parent);
     }
 
-    private void rebalance(Node<T> x) {
+    private void rebalance(Node x) {
         // check right sibling of x
-        Node<T> rightSibling = rightSiblingOf(x);
+        Node rightSibling = rightSiblingOf(x);
         if (rightSibling != null && rightSibling.n > minKeys) {
             leftRotation(rightSibling, x);
             return;
         }
 
         // check left sibling of x
-        Node<T> leftSibling = leftSiblingOf(x);
+        Node leftSibling = leftSiblingOf(x);
         if (leftSibling != null && leftSibling.n > minKeys) {
             rightRotation(leftSibling, x);
             return;
@@ -242,67 +244,78 @@ public class BTree<T extends Comparable<T>>
             merge(x, rightSibling);
     }
 
-    private void splitChild(Node<T> x, int i) {
-        Node<T> y = x.children[i];
-        Node<T> z = new Node<>(t, y.isLeaf);
-        z.parent = x;
+    private void splitChild(Node n, int idx) {
+        Node y = n.children[idx];
+        Node z = new Node(y.isLeaf);
+        z.parent = n;
         z.n = minKeys;
         // move half of the keys from y to z
         for (int j = 0; j < minKeys; j++) {
-            z.keys[j] = y.keys[t + j];
-            y.keys[t + j] = null;
+            z.keys[j] = y.keys[order + j];
+            y.keys[order + j] = null;
         }
         // if y isn't leaf (it means it has children) we need to move them as well
         if (!y.isLeaf) {
             for (int j = 0; j < minChildren; j++) {
-                z.children[j] = y.children[t + j];
+                z.children[j] = y.children[order + j];
                 z.children[j].parent = z;
-                y.children[t + j] = null;
+                y.children[order + j] = null;
             }
         }
         y.n = minKeys;
 
-        // insert z to parent x
-        for (int j = x.n; j >= i; j--)
-            x.children[j + 1] = x.children[j];
-        x.children[i + 1] = z;
-        // insert new key to parent x
-        for (int j = x.n - 1; j >= i; j--)
-            x.keys[j + 1] = x.keys[j];
-        x.keys[i] = y.keys[minKeys];
+        // insert z to parent n
+        for (int j = n.n; j >= idx; j--)
+            n.children[j + 1] = n.children[j];
+        n.children[idx + 1] = z;
+        // insert new key to parent n
+        for (int j = n.n - 1; j >= idx; j--)
+            n.keys[j + 1] = n.keys[j];
+        n.keys[idx] = y.keys[minKeys];
         y.keys[minKeys] = null;
-        x.n++;
+        n.n++;
+    }
+
+    public boolean contains(T key) {
+        return root.search(key) != null;
+    }
+
+    public int size() {
+        return size;
+    }
+
+    public boolean isEmpty() {
+        return root == null;
     }
 
     public void insert(T key) {
-        Node<T> r = root;
+        Node r = root;
         // if root is full we split it and make additional level in our tree
         if (r.n == maxKeys) {
-            Node<T> s = new Node<>(t, false);
+            Node s = new Node(false);
             r.parent = s;
             root = s;
             s.children[0] = r;
             splitChild(s, 0);
             insertNonfull(s, key);
-        }
-        else
+        } else
             insertNonfull(r, key);
+        size++;
     }
 
-    private void insertNonfull(Node<T> x, T key) {
+    private void insertNonfull(Node x, T key) {
         int i = x.n - 1;
         if (x.isLeaf) {
             x.addKey(key);
-        }
-        else {
+        } else {
             // look for a correct child
-            while (i >= 0 && x.keys[i].compareTo(key) > 0)
+            while (i >= 0 && comp.compare(x.keys[i], key) > 0)
                 i--;
             i++;
             // if child is full we split it
             if (x.children[i].n == maxKeys) {
                 splitChild(x, i);
-                if (x.keys[i].compareTo(key) < 0)
+                if (comp.compare(x.keys[i], key) < 0)
                     i++;
             }
             // insert key to correct child
@@ -311,38 +324,33 @@ public class BTree<T extends Comparable<T>>
     }
 
     public T remove(T key) {
-        Node<T> x = root.search(key);
+        Node x = root.search(key);
         if (x == null)
             return null;
-        // at this point we already know that the key exists in node x
-        return remove(x, key);
-    }
 
-    // we assume that the key exists in the node
-    private T remove(Node<T> x, T key) {
+        size--;
         if (x.isLeaf)
             return removeFromLeaf(x, key);
         else
             return removeFromInternal(x, key);
     }
 
-    private T removeFromLeaf(Node<T> x, T key) {
+    private T removeFromLeaf(Node x, T key) {
         T v = x.removeKey(key);
         if (x.n < minKeys)
             rebalance(x);
         return v;
     }
 
-    private T removeFromInternal(Node<T> x, T key) {
+    private T removeFromInternal(Node x, T key) {
         T v = x.keys[x.indexOf(key)];
-        Node<T> predecessorLeaf = predecessorLeafOf(x, key);
+        Node predecessorLeaf = predecessorLeafOf(x, key);
         if (predecessorLeaf.n > minKeys) {
             // replace our key with predecessor key
             x.keys[x.indexOf(key)] = predecessorLeaf.removeKey(predecessorLeaf.n - 1);
-        }
-        else {
+        } else {
             // if predecessor leaf would be deficient after key removal we look for a successor
-            Node<T> successorLeaf = successorLeafOf(x, key);
+            Node successorLeaf = successorLeafOf(x, key);
             x.keys[x.indexOf(key)] = successorLeaf.removeKey(0);
             // now if successor leaf is deficient we start a tree rebalance from the leaf to the top
             if (successorLeaf.n < minKeys)
@@ -354,19 +362,18 @@ public class BTree<T extends Comparable<T>>
     private static class Example
     {
         public static void main(String[] args) {
-            BTree<Integer> btree = new BTree<>(3);
+            BTree<Integer> btree = new BTree<>(3, Integer::compareTo);
 
-            Integer[] arr = {
-                    4, 5, 6, 10, 14, 15, 16, 20, 23, 27, 50, 51, 52, 60, 64, 65, 68, 70, 72, 73, 75,
-//                    77, 78, 79, 80, 81, 82, 89, 90, 92, 93, 95, 103, 110, 111
-            };
+            Integer[] arr = {4, 5, 6, 10, 14, 15, 16, 20, 23, 27, 50, 51, 52, 60, 64, 65, 68, 70, 72, 73, 75};
             for (Integer i : arr)
                 btree.insert(i);
 
+            System.out.println(btree.size());
             btree.remove(70);
             btree.remove(51);
             btree.remove(64);
             btree.remove(72);
+            System.out.println(btree.size());
         }
     }
 }
