@@ -4,7 +4,7 @@ public class StackArrayImpl<T>
 {
     private final static int DEFAULT_CAPACITY = 10;
     private T[] arr;
-    private int topIndex = -1;
+    private int top = -1;
 
     @SuppressWarnings("unchecked")
     public StackArrayImpl(int capacity) {
@@ -18,31 +18,31 @@ public class StackArrayImpl<T>
     public T pop() {
         if (isEmpty())
             throw new IllegalStateException("Stack is empty");
-        return arr[topIndex--];
+        return arr[top--];
     }
 
     public void push(T t) {
         if (isFull())
             throw new IllegalStateException("Stack is full");
-        arr[++topIndex] = t;
+        arr[++top] = t;
     }
 
     public T top() {
         if (isEmpty())
             throw new IllegalStateException("Stack is empty");
-        return arr[topIndex];
+        return arr[top];
     }
 
     public int size() {
-        return topIndex + 1;
+        return top + 1;
     }
 
     public boolean isEmpty() {
-        return topIndex == -1;
+        return top == -1;
     }
 
     public boolean isFull() {
-        return topIndex + 1 == arr.length;
+        return top + 1 == arr.length;
     }
 
     private static class Example

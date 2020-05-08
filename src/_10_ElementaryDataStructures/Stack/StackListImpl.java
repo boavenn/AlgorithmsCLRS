@@ -2,17 +2,17 @@ package _10_ElementaryDataStructures.Stack;
 
 public class StackListImpl<T>
 {
-    private class Node
+    private static class Node<T>
     {
         private T value;
-        private Node next;
+        private Node<T> next;
 
         public Node(T value) {
             this.value = value;
         }
     }
 
-    private Node head;
+    private Node<T> head;
     private int size;
 
     public T pop() {
@@ -25,7 +25,7 @@ public class StackListImpl<T>
     }
 
     public void push(T t) {
-        Node node = new Node(t);
+        Node<T> node = new Node<>(t);
         node.next = head;
         head = node;
         size++;

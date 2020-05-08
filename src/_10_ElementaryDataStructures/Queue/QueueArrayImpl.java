@@ -4,8 +4,8 @@ public class QueueArrayImpl<T>
 {
     private final static int DEFAULT_CAPACITY = 10;
     private T[] arr;
-    private int beginIndex = 0;
-    private int endIndex = 0;
+    private int begin = 0;
+    private int end = 0;
 
     @SuppressWarnings("unchecked")
     public QueueArrayImpl(int capacity) {
@@ -19,32 +19,32 @@ public class QueueArrayImpl<T>
     public void enqueue(T t) {
         if (isFull())
             throw new IllegalStateException("Queue is full");
-        arr[endIndex++] = t;
-        endIndex %= arr.length;
+        arr[end++] = t;
+        end %= arr.length;
     }
 
     public T dequeue() {
         if (isEmpty())
             throw new IllegalStateException("Queue is empty");
-        T v = arr[beginIndex++];
-        beginIndex %= arr.length;
+        T v = arr[begin++];
+        begin %= arr.length;
         return v;
     }
 
     public T peek() {
-        return arr[beginIndex];
+        return arr[begin];
     }
 
     public int size() {
-        return (endIndex + arr.length - beginIndex) % arr.length;
+        return (end + arr.length - begin) % arr.length;
     }
 
     public boolean isEmpty() {
-        return beginIndex == endIndex;
+        return begin == end;
     }
 
     public boolean isFull() {
-        return beginIndex == (endIndex + 1) % arr.length;
+        return begin == (end + 1) % arr.length;
     }
 
     private static class Example

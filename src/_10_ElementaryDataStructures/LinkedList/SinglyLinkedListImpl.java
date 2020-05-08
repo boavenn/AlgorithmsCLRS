@@ -1,28 +1,28 @@
 package _10_ElementaryDataStructures.LinkedList;
 
-public class OneWayLinkedListImpl<T>
+public class SinglyLinkedListImpl<T>
 {
-    private class Node
+    private static class Node<T>
     {
         private T value;
-        private Node next;
+        private Node<T> next;
 
         public Node(T value) {
             this.value = value;
         }
     }
 
-    private Node head;
+    private Node<T> head;
     private int size = 0;
 
     public void insert(T t) {
-        Node node = new Node(t);
+        Node<T> node = new Node<>(t);
         if (head == null) {
             head = node;
             size++;
             return;
         }
-        Node temp = head;
+        Node<T> temp = head;
         while (temp.next != null)
             temp = temp.next;
         temp.next = node;
@@ -32,12 +32,13 @@ public class OneWayLinkedListImpl<T>
     public void insert(T t, int idx) {
         if (idx < 0)
             throw new IndexOutOfBoundsException();
-        Node node = new Node(t);
+
+        Node<T> node = new Node<>(t);
         if (idx == 0) {
             node.next = head;
             head = node;
         } else {
-            Node temp = getNode(idx - 1);
+            Node<T> temp = getNode(idx - 1);
             node.next = temp.next;
             temp.next = node;
         }
@@ -54,7 +55,7 @@ public class OneWayLinkedListImpl<T>
             return true;
         }
 
-        Node temp = head;
+        Node<T> temp = head;
         while (temp.next != null && !temp.next.value.equals(t))
             temp = temp.next;
 
@@ -68,6 +69,7 @@ public class OneWayLinkedListImpl<T>
     public T remove(int idx) {
         if (idx < 0 || head == null)
             throw new IndexOutOfBoundsException();
+
         if (idx == 0) {
             T v = head.value;
             head = head.next;
@@ -75,7 +77,7 @@ public class OneWayLinkedListImpl<T>
             return v;
         }
 
-        Node temp = getNode(idx - 1);
+        Node<T> temp = getNode(idx - 1);
         if (temp.next == null)
             throw new IndexOutOfBoundsException();
         T v = temp.next.value;
@@ -94,7 +96,7 @@ public class OneWayLinkedListImpl<T>
 
     public int indexOf(T t) {
         int idx = 0;
-        Node temp = head;
+        Node<T> temp = head;
         while (temp != null) {
             if (temp.value.equals(t))
                 return idx;
@@ -112,10 +114,11 @@ public class OneWayLinkedListImpl<T>
         return head == null;
     }
 
-    private Node getNode(int idx) {
+    private Node<T> getNode(int idx) {
         if (idx < 0)
             throw new IndexOutOfBoundsException();
-        Node temp = head;
+
+        Node<T> temp = head;
         while (idx > 0 && temp != null) {
             temp = temp.next;
             idx--;
@@ -123,13 +126,14 @@ public class OneWayLinkedListImpl<T>
 
         if (temp == null)
             throw new IndexOutOfBoundsException();
+
         return temp;
     }
 
     private static class Example
     {
         public static void main(String[] args) {
-            OneWayLinkedListImpl<Integer> list = new OneWayLinkedListImpl<>();
+            SinglyLinkedListImpl<Integer> list = new SinglyLinkedListImpl<>();
             list.insert(1);
             list.insert(2);
             list.insert(3);

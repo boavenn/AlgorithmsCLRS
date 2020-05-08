@@ -4,11 +4,11 @@ public class LinkedListArrayImpl<T>
 {
     private final static int DEFAULT_CAPACITY = 10;
     private T[] arr;
-    private int topIndex = -1;
+    private int top = -1;
 
     @SuppressWarnings("unchecked")
     public LinkedListArrayImpl(int capacity) {
-        arr = (T[]) (new Object[capacity]);
+        arr = (T[]) (new Object[Math.max(capacity, DEFAULT_CAPACITY)]);
     }
 
     public LinkedListArrayImpl() {
@@ -16,8 +16,8 @@ public class LinkedListArrayImpl<T>
     }
 
     public void insert(T t) {
-        arr[++topIndex] = t;
-        if (topIndex == arr.length + 1)
+        arr[++top] = t;
+        if (top == arr.length + 1)
             resize();
     }
 
@@ -27,7 +27,7 @@ public class LinkedListArrayImpl<T>
 
         shiftRight(idx);
         arr[idx] = t;
-        if (topIndex == arr.length + 1)
+        if (top == arr.length + 1)
             resize();
     }
 
@@ -55,11 +55,11 @@ public class LinkedListArrayImpl<T>
 
     public boolean contains(T t) {
         if (t == null) {
-            for (int i = 0; i <= topIndex; i++)
+            for (int i = 0; i <= top; i++)
                 if (arr[i] == null)
                     return true;
         } else {
-            for (int i = 0; i <= topIndex; i++)
+            for (int i = 0; i <= top; i++)
                 if (arr[i].equals(t))
                     return true;
         }
@@ -68,11 +68,11 @@ public class LinkedListArrayImpl<T>
 
     public int indexOf(T t) {
         if (t == null) {
-            for (int i = 0; i <= topIndex; i++)
+            for (int i = 0; i <= top; i++)
                 if (arr[i] == null)
                     return i;
         } else {
-            for (int i = 0; i <= topIndex; i++)
+            for (int i = 0; i <= top; i++)
                 if (arr[i].equals(t))
                     return i;
         }
@@ -80,11 +80,11 @@ public class LinkedListArrayImpl<T>
     }
 
     public int size() {
-        return topIndex + 1;
+        return top + 1;
     }
 
     public boolean isEmpty() {
-        return topIndex == -1;
+        return top == -1;
     }
 
     @SuppressWarnings("unchecked")
@@ -97,17 +97,17 @@ public class LinkedListArrayImpl<T>
     }
 
     private void shiftRight(int idx) {
-        for (int i = topIndex; i >= idx; i--)
+        for (int i = top; i >= idx; i--)
             arr[i + 1] = arr[i];
         arr[idx] = null;
-        topIndex++;
+        top++;
     }
 
     private void shiftLeft(int idx) {
-        for (int i = idx + 1; i <= topIndex; i++)
+        for (int i = idx + 1; i <= top; i++)
             arr[i - 1] = arr[i];
-        arr[topIndex] = null;
-        topIndex--;
+        arr[top] = null;
+        top--;
     }
 
     private static class Example

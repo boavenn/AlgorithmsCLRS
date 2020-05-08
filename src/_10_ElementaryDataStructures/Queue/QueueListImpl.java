@@ -2,22 +2,22 @@ package _10_ElementaryDataStructures.Queue;
 
 public class QueueListImpl<T>
 {
-    private class Node
+    private static class Node<T>
     {
         private T value;
-        private Node next;
+        private Node<T> next;
 
         public Node(T value) {
             this.value = value;
         }
     }
 
-    private Node head;
-    private Node tail;
+    private Node<T> head;
+    private Node<T> tail;
     private int size;
 
     public void enqueue(T t) {
-        Node node = new Node(t);
+        Node<T> node = new Node<>(t);
         if (head == null)
             head = node;
         else

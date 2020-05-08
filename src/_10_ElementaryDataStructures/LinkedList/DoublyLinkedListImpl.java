@@ -1,25 +1,25 @@
 package _10_ElementaryDataStructures.LinkedList;
 
-public class TwoWayLinkedListImpl<T>
+public class DoublyLinkedListImpl<T>
 {
-    private class Node
+    private static class Node<T>
     {
         private T value;
-        private Node next;
-        private Node prev;
+        private Node<T> next;
+        private Node<T> prev;
 
         public Node(T value) {
             this.value = value;
         }
 
-        public void insertAfter(Node node) {
+        public void insertAfter(Node<T> node) {
             node.next = this.next;
             node.prev = this;
             next.prev = node;
             next = node;
         }
 
-        public void insertBefore(Node node) {
+        public void insertBefore(Node<T> node) {
             node.next = this;
             node.prev = this.prev;
             this.prev.next = node;
@@ -32,20 +32,20 @@ public class TwoWayLinkedListImpl<T>
         }
     }
 
-    private Node sentinel;
+    private Node<T> sentinel;
     private int size;
 
-    public TwoWayLinkedListImpl() {
-        sentinel = new Node(null);
+    public DoublyLinkedListImpl() {
+        sentinel = new Node<>(null);
         sentinel.next = sentinel;
         sentinel.prev = sentinel;
     }
 
-    private Node getNode(int idx) {
+    private Node<T> getNode(int idx) {
         if (idx < 0)
             throw new IndexOutOfBoundsException();
 
-        Node temp = sentinel.next;
+        Node<T> temp = sentinel.next;
         int i = 0;
         while (temp != sentinel && i < idx) {
             i++;
@@ -57,8 +57,8 @@ public class TwoWayLinkedListImpl<T>
         return temp;
     }
 
-    private Node getNode(T t) {
-        Node temp = sentinel.next;
+    private Node<T> getNode(T t) {
+        Node<T> temp = sentinel.next;
         while (temp != sentinel && !temp.value.equals(t))
             temp = temp.next;
 
@@ -68,24 +68,24 @@ public class TwoWayLinkedListImpl<T>
     }
 
     public void insert(T t) {
-        Node node = new Node(t);
+        Node<T> node = new Node<>(t);
         sentinel.insertBefore(node);
         size++;
     }
 
     public void insert(T t, int idx) {
-        Node node = new Node(t);
+        Node<T> node = new Node<>(t);
         if (idx == 0)
             sentinel.insertAfter(node);
         else {
-            Node temp = getNode(idx - 1);
+            Node<T> temp = getNode(idx - 1);
             temp.insertAfter(node);
         }
         size++;
     }
 
     public boolean remove(T t) {
-        Node node = getNode(t);
+        Node<T> node = getNode(t);
         if (node == null)
             return false;
         node.remove();
@@ -94,7 +94,7 @@ public class TwoWayLinkedListImpl<T>
     }
 
     public T remove(int idx) {
-        Node node = getNode(idx);
+        Node<T> node = getNode(idx);
         node.remove();
         size--;
         return node.value;
@@ -109,7 +109,7 @@ public class TwoWayLinkedListImpl<T>
     }
 
     public int indexOf(T t) {
-        Node temp = sentinel.next;
+        Node<T> temp = sentinel.next;
         int i = 0;
         while (temp != sentinel && !temp.value.equals(t)) {
             i++;
@@ -132,7 +132,7 @@ public class TwoWayLinkedListImpl<T>
     private static class Example
     {
         public static void main(String[] args) {
-            TwoWayLinkedListImpl<Integer> list = new TwoWayLinkedListImpl<>();
+            DoublyLinkedListImpl<Integer> list = new DoublyLinkedListImpl<>();
             list.insert(1);
             list.insert(2);
             list.insert(3);
