@@ -2,7 +2,7 @@ package _15_DynamicProgramming;
 
 import java.util.Formatter;
 
-public final class OptimalBinarySeachTree
+public final class OptimalBinarySearchTree
 {
     public static Result optimalBST(double[] p, double[] q, int n) {
         Result res = new Result(n);
