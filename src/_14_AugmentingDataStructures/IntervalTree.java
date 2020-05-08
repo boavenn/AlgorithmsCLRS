@@ -1,6 +1,8 @@
 package _14_AugmentingDataStructures;
 
-public class IntervalTree<T extends Comparable<T>>
+import java.util.Comparator;
+
+public class IntervalTree<T>
 {
     public static class Interval implements Comparable<Interval>
     {
@@ -43,8 +45,9 @@ public class IntervalTree<T extends Comparable<T>>
         }
     }
 
-    private Node sentinel;
     private Node root;
+    private Node sentinel;
+    private int size;
 
     public IntervalTree() {
         sentinel = new Node(new Interval(0, 0), null);
@@ -56,71 +59,80 @@ public class IntervalTree<T extends Comparable<T>>
     }
 
     public void insert(Interval interval, T value) {
-        Node z = new Node(interval, value);
-        Node y = sentinel;
-        Node x = root;
-        while (x != sentinel) {
-            y = x;
-            x.max = Math.max(x.max, z.max);
-            if (z.interval.compareTo(y.interval) < 0)
-                x = x.left;
+        Node newNode = new Node(interval, value);
+        Node p = sentinel;
+        Node n = root;
+        while (n != sentinel) {
+            p = n;
+            n.max = Math.max(n.max, newNode.max);
+            if (newNode.interval.compareTo(p.interval) < 0)
+                n = n.left;
             else
-                x = x.right;
+                n = n.right;
         }
-        z.parent = y;
-        if (y == sentinel)
-            root = z;
-        else if (z.interval.compareTo(y.interval) < 0)
-            y.left = z;
+        newNode.parent = p;
+        if (p == sentinel)
+            root = newNode;
+        else if (newNode.interval.compareTo(p.interval) < 0)
+            p.left = newNode;
         else
-            y.right = z;
-        insertFixup(z);
+            p.right = newNode;
+
+        insertFixup(newNode);
+        size++;
     }
 
     public void remove(Interval interval) {
-        Node z = intervalSearch(interval);
-        if (z == sentinel)
+        Node nodeToDelete = intervalSearch(interval);
+        if (nodeToDelete == sentinel)
             return;
-        Node y = z;
-        Node temp = z.parent;
-        int yOriginalColor = y.color;
-        Node x;
-        if (z.left == sentinel) {
-            x = z.right;
-            transplant(z, z.right);
-        }
-        else if (z.right == sentinel) {
-            x = z.left;
-            transplant(z, z.left);
-        }
-        else {
-            y = minimum(z.right);
-            yOriginalColor = y.color;
-            x = y.right;
-            if (y.parent == z)
-                x.parent = y;
+
+        Node p = nodeToDelete.parent;
+        int oldColor = nodeToDelete.color;
+        Node n;
+        if (nodeToDelete.left == sentinel) {
+            n = nodeToDelete.right;
+            transplant(nodeToDelete, nodeToDelete.right);
+        } else if (nodeToDelete.right == sentinel) {
+            n = nodeToDelete.left;
+            transplant(nodeToDelete, nodeToDelete.left);
+        } else {
+            Node min = minimum(nodeToDelete.right);
+            oldColor = min.color;
+            n = min.right;
+            if (min.parent == nodeToDelete)
+                n.parent = min;
             else {
-                temp = y.parent;
-                transplant(y, y.right);
-                y.right = z.right;
-                y.right.parent = y;
+                p = min.parent;
+                transplant(min, min.right);
+                min.right = nodeToDelete.right;
+                min.right.parent = min;
             }
-            transplant(z, y);
-            y.left = z.left;
-            y.left.parent = y;
-            y.color = z.color;
+            transplant(nodeToDelete, min);
+            min.left = nodeToDelete.left;
+            min.left.parent = min;
+            min.color = nodeToDelete.color;
         }
-        while(temp != sentinel) {
-            temp.max = Math.max(Math.max(temp.left.max, temp.right.max), temp.interval.high);
-            temp = temp.parent;
+        while (p != sentinel) {
+            p.max = Math.max(Math.max(p.left.max, p.right.max), p.interval.high);
+            p = p.parent;
         }
-        if (yOriginalColor == Node.BLACK)
-            removeFixup(x);
+        if (oldColor == Node.BLACK)
+            removeFixup(n);
+        size--;
     }
 
     public boolean contains(Interval interval) {
         Node z = intervalSearch(interval);
         return z != sentinel;
+    }
+
+    public boolean isEmpty() {
+        return root == null;
+    }
+
+    public int size() {
+        return size;
     }
 
     public void printInOrder() {
@@ -147,23 +159,19 @@ public class IntervalTree<T extends Comparable<T>>
     }
 
     private Node minimum(Node n) {
-        if (n == sentinel)
-            return null;
-        Node temp = n;
-        while (temp.left != sentinel) {
-            temp = temp.left;
+        Node t = n;
+        while (t.left != sentinel) {
+            t = t.left;
         }
-        return temp;
+        return t;
     }
 
     private Node maximum(Node n) {
-        if (n == sentinel)
-            return null;
-        Node temp = n;
-        while (temp.right != sentinel) {
-            temp = temp.right;
+        Node t = n;
+        while (t.right != sentinel) {
+            t = t.right;
         }
-        return temp;
+        return t;
     }
 
     private void transplant(Node u, Node v) {
@@ -176,159 +184,158 @@ public class IntervalTree<T extends Comparable<T>>
         v.parent = u.parent;
     }
 
-    private void leftRotate(Node x) {
-        Node y = x.right;
-        x.right = y.left;
-        if (y.left != sentinel)
-            y.left.parent = x;
-        y.parent = x.parent;
-        if (x.parent == sentinel)
-            root = y;
-        else if (x == x.parent.left)
-            x.parent.left = y;
-        else
-            x.parent.right = y;
-        y.left = x;
-        x.parent = y;
+    private void leftRotate(Node a) {
+        Node b = a.right;
+        a.right = b.left;
+        if (b.left != sentinel)
+            b.left.parent = a;
+        b.parent = a.parent;
 
-        y.max = x.max;
-        x.max = Math.max(Math.max(x.left.max, x.right.max), x.interval.high);
+        if (a.parent == sentinel)
+            root = b;
+        else if (a == a.parent.left)
+            a.parent.left = b;
+        else
+            a.parent.right = b;
+
+        b.left = a;
+        a.parent = b;
+        a.max = Math.max(Math.max(a.left.max, a.right.max), a.interval.high);
+        b.max = a.max;
     }
 
-    private void rightRotate(Node x) {
-        Node y = x.left;
-        x.left = y.right;
-        if (y.right != sentinel)
-            y.right.parent = x;
-        y.parent = x.parent;
-        if (x.parent == sentinel)
-            root = y;
-        else if (x == x.parent.left)
-            x.parent.left = y;
-        else
-            x.parent.right = y;
-        y.right = x;
-        x.parent = y;
+    private void rightRotate(Node a) {
+        Node b = a.left;
+        a.left = b.right;
+        if (b.right != sentinel)
+            b.right.parent = a;
+        b.parent = a.parent;
 
-        y.max = x.max;
-        x.max = Math.max(Math.max(x.left.max, x.right.max), x.interval.high);
+        if (a.parent == sentinel)
+            root = b;
+        else if (a == a.parent.left)
+            a.parent.left = b;
+        else
+            a.parent.right = b;
+
+        b.right = a;
+        a.parent = b;
+        a.max = Math.max(Math.max(a.left.max, a.right.max), a.interval.high);
+        b.max = a.max;
     }
 
-    private void insertFixup(Node z) {
-        while (z.parent.color == Node.RED) {
-            if (z.parent == z.parent.parent.left) {
-                Node y = z.parent.parent.right;
-                if (y.color == Node.RED) {
-                    z.parent.color = Node.BLACK;
-                    y.color = Node.BLACK;
-                    z.parent.parent.color = Node.RED;
-                    z = z.parent.parent;
-                }
-                else {
-                    if (z == z.parent.right) {
-                        z = z.parent;
-                        leftRotate(z);
+    private void insertFixup(Node n) {
+        while (n.parent.color == Node.RED) {
+            if (n.parent == n.parent.parent.left) {
+                Node u = n.parent.parent.right;
+                if (u.color == Node.RED) {
+                    n.parent.color = Node.BLACK;
+                    u.color = Node.BLACK;
+                    n.parent.parent.color = Node.RED;
+                    n = n.parent.parent;
+                } else {
+                    if (n == n.parent.right) {
+                        n = n.parent;
+                        leftRotate(n);
                     }
-                    z.parent.color = Node.BLACK;
-                    z.parent.parent.color = Node.RED;
-                    rightRotate(z.parent.parent);
+                    n.parent.color = Node.BLACK;
+                    n.parent.parent.color = Node.RED;
+                    rightRotate(n.parent.parent);
                 }
-            }
-            else {
-                Node y = z.parent.parent.left;
-                if (y.color == Node.RED) {
-                    z.parent.color = Node.BLACK;
-                    y.color = Node.BLACK;
-                    z.parent.parent.color = Node.RED;
-                    z = z.parent.parent;
-                }
-                else {
-                    if (z == z.parent.left) {
-                        z = z.parent;
-                        rightRotate(z);
+            } else {
+                Node u = n.parent.parent.left;
+                if (u.color == Node.RED) {
+                    n.parent.color = Node.BLACK;
+                    u.color = Node.BLACK;
+                    n.parent.parent.color = Node.RED;
+                    n = n.parent.parent;
+                } else {
+                    if (n == n.parent.left) {
+                        n = n.parent;
+                        rightRotate(n);
                     }
-                    z.parent.color = Node.BLACK;
-                    z.parent.parent.color = Node.RED;
-                    leftRotate(z.parent.parent);
+                    n.parent.color = Node.BLACK;
+                    n.parent.parent.color = Node.RED;
+                    leftRotate(n.parent.parent);
                 }
             }
         }
         root.color = Node.BLACK;
     }
 
-    private void removeFixup(Node x) {
-        while (x != root && x.color == Node.BLACK) {
-            if (x == x.parent.left) {
-                Node w = x.parent.right;
-                if (w.color == Node.RED) {
-                    w.color = Node.BLACK;
-                    x.parent.color = Node.RED;
-                    leftRotate(x.parent);
-                    w = x.parent.right;
+    private void removeFixup(Node n) {
+        while (n != root && n.color == Node.BLACK) {
+            if (n == n.parent.left) {
+                Node s = n.parent.right;
+                if (s.color == Node.RED) {
+                    s.color = Node.BLACK;
+                    n.parent.color = Node.RED;
+                    leftRotate(n.parent);
+                    s = n.parent.right;
                 }
-                if (w.left.color == Node.BLACK && w.right.color == Node.BLACK) {
-                    w.color = Node.RED;
-                    x = x.parent;
-                }
-                else {
-                    if (w.right.color == Node.BLACK) {
-                        w.left.color = Node.BLACK;
-                        w.color = Node.RED;
-                        rightRotate(w);
-                        w = x.parent.right;
+                if (s.left.color == Node.BLACK && s.right.color == Node.BLACK) {
+                    s.color = Node.RED;
+                    n = n.parent;
+                } else {
+                    if (s.right.color == Node.BLACK) {
+                        s.left.color = Node.BLACK;
+                        s.color = Node.RED;
+                        rightRotate(s);
+                        s = n.parent.right;
                     }
-                    w.color = x.parent.color;
-                    x.parent.color = Node.BLACK;
-                    w.right.color = Node.BLACK;
-                    leftRotate(x.parent);
-                    x = root;
+                    s.color = n.parent.color;
+                    n.parent.color = Node.BLACK;
+                    s.right.color = Node.BLACK;
+                    leftRotate(n.parent);
+                    n = root;
                 }
-            }
-            else {
-                Node w = x.parent.left;
-                if (w.color == Node.RED) {
-                    w.color = Node.BLACK;
-                    x.parent.color = Node.RED;
-                    rightRotate(x.parent);
-                    w = x.parent.left;
+            } else {
+                Node s = n.parent.left;
+                if (s.color == Node.RED) {
+                    s.color = Node.BLACK;
+                    n.parent.color = Node.RED;
+                    rightRotate(n.parent);
+                    s = n.parent.left;
                 }
-                if (w.right.color == Node.BLACK && w.left.color == Node.BLACK) {
-                    w.color = Node.RED;
-                    x = x.parent;
-                }
-                else {
-                    if (w.left.color == Node.BLACK) {
-                        w.right.color = Node.BLACK;
-                        w.color = Node.RED;
-                        leftRotate(w);
-                        w = x.parent.left;
+                if (s.right.color == Node.BLACK && s.left.color == Node.BLACK) {
+                    s.color = Node.RED;
+                    n = n.parent;
+                } else {
+                    if (s.left.color == Node.BLACK) {
+                        s.right.color = Node.BLACK;
+                        s.color = Node.RED;
+                        leftRotate(s);
+                        s = n.parent.left;
                     }
-                    w.color = x.parent.color;
-                    x.parent.color = Node.BLACK;
-                    w.left.color = Node.BLACK;
-                    rightRotate(x.parent);
-                    x = root;
+                    s.color = n.parent.color;
+                    n.parent.color = Node.BLACK;
+                    s.left.color = Node.BLACK;
+                    rightRotate(n.parent);
+                    n = root;
                 }
             }
         }
-        x.color = Node.BLACK;
+        n.color = Node.BLACK;
     }
 
     private static class Example
     {
         public static void main(String[] args) {
             IntervalTree<Integer> it = new IntervalTree<>();
-            it.insert(new Interval(16, 21), 0);
-            it.insert(new Interval(25, 30), 0);
-            it.insert(new Interval(8, 9), 0);
-            it.insert(new Interval(5, 8), 0);
-            it.insert(new Interval(15, 23), 0);
-            it.insert(new Interval(17, 19), 0);
-            it.insert(new Interval(26, 26), 0);
-            it.insert(new Interval(0, 3), 0);
-            it.insert(new Interval(19, 20), 0);
-            it.insert(new Interval(6, 10), 0);
-            it.insert(new Interval(25, 27), 0);
+            it.insert(new Interval(16, 21), 1);
+            it.insert(new Interval(25, 30), 2);
+            it.insert(new Interval(8, 9), 3);
+            it.insert(new Interval(5, 8), 4);
+            it.insert(new Interval(15, 23), 5);
+            it.insert(new Interval(17, 19), 6);
+            it.insert(new Interval(26, 26), 7);
+            it.insert(new Interval(0, 3), 8);
+            it.insert(new Interval(19, 20), 9);
+            it.insert(new Interval(6, 10), 10);
+            it.insert(new Interval(25, 27), 11);
+            System.out.println(it.size());
+            it.printInOrder();
+
             it.remove(new Interval(25, 25));
             it.remove(new Interval(6, 7));
         }
