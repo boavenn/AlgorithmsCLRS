@@ -55,7 +55,7 @@ public class BinarySearchTree<T>
     }
 
     private Node<T> remove(Node<T> n, T key) {
-        if (n.key == key) {
+        if (comp.compare(n.key, key) == 0) {
             if (n.left == null)
                 return n.right;
             else if (n.right == null)
@@ -140,7 +140,7 @@ public class BinarySearchTree<T>
         if (n == null)
             return null;
 
-        if (n.key == key) {
+        if (comp.compare(n.key, key) == 0) {
             if (n.left != null)
                 return maximum(n.left);
             return null;
@@ -154,7 +154,7 @@ public class BinarySearchTree<T>
 
     private Node<T> search(T key) {
         Node<T> n = root;
-        while (n != null && n.key != key) {
+        while (n != null && comp.compare(n.key, key) != 0) {
             if (comp.compare(key, n.key) < 0)
                 n = n.left;
             else

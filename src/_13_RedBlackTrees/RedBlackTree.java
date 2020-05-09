@@ -150,7 +150,7 @@ public class RedBlackTree<T>
         if (n == sentinel)
             return sentinel;
 
-        if (n.key == key) {
+        if (comp.compare(n.key, key) == 0) {
             if (n.right != sentinel)
                 return minimum(n.right);
             return sentinel;
@@ -171,7 +171,7 @@ public class RedBlackTree<T>
         if (n == sentinel)
             return sentinel;
 
-        if (n.key == key) {
+        if (comp.compare(n.key, key) == 0) {
             if (n.left != sentinel)
                 return maximum(n.left);
             return sentinel;
@@ -185,7 +185,7 @@ public class RedBlackTree<T>
 
     private Node search(T key) {
         Node n = root;
-        while (n != sentinel && n.key != key) {
+        while (n != sentinel && comp.compare(n.key, key) != 0) {
             if (comp.compare(key, n.key) < 0)
                 n = n.left;
             else
