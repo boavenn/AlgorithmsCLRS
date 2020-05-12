@@ -1,8 +1,13 @@
 package _19_FibonacciHeap;
 
-public class FibonacciHeap<T extends Comparable<T>>
+import _27_MultithreadedAlgorithms.Fibonacci;
+
+import java.util.Comparator;
+import java.util.Random;
+
+public class FibonacciHeap<T>
 {
-    private static class Node<T extends Comparable<T>>
+    private static class Node<T>
     {
         private Node<T> parent;
         private Node<T> left;
@@ -19,126 +24,91 @@ public class FibonacciHeap<T extends Comparable<T>>
             this.isMarked = false;
             this.degree = 0;
         }
+
+        public boolean hasNeighbour() {
+            return right != this;
+        }
+
+        public boolean isChild() {
+            return parent != null;
+        }
+
+        public void insert(Node<T> n) {
+            left.right = n;
+            n.left = left;
+            n.right = this;
+            left = n;
+        }
     }
 
-    private int n = 0;
     private Node<T> min;
+    private Comparator<T> comp;
+    private int size = 0;
 
-    private void insertToRootList(Node<T> x) {
-        if (min == null) {
-            min = x;
-            min.left = min;
-            min.right = min;
-        }
-        else {
-            x.left = min.left;
-            min.left.right = x;
-            x.right = min;
-            min.left = x;
-            if (x.key.compareTo(min.key) < 0)
-                min = x;
-        }
-    }
-
-    private void link(Node<T> x, Node<T> y) {
-        // update min if necessary
-        if (min == x)
-            min = y;
-        // remove x from root list
-        x.left.right = x.right;
-        x.right.left = x.left;
-        // set x as child of y
-        if (y.child != null) {
-            x.left = y.child.left;
-            y.child.left.right = x;
-            x.right = y.child;
-            y.child.left = x;
-        }
-        else {
-            x.left = x;
-            x.right = x;
-            y.child = x;
-        }
-        x.parent = y;
-        y.degree++;
-        x.isMarked = false;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void consolidate() {
-        Object[] A = new Object[n];
-
-        Node<T> w = min;
-        do {
-            Node<T> x = w;
-            w = w.right;
-            int d = x.degree;
-            while (A[d] != null) {
-                Node<T> y = (Node<T>) A[d];
-                if (x.key.compareTo(y.key) > 0) {
-                    swap(x, y);
-                    link(x, y);
-                }
-                else {
-                    link(y, x);
-                }
-                A[d] = null;
-                d++;
-            }
-            A[d] = x.parent == null ? x : x.parent;
-        } while (w != min);
-
-        min = null;
-
-        for (int i = 0; i < n; i++) {
-            if (A[i] != null) {
-                insertToRootList((Node<T>) A[i]);
-            }
-        }
-    }
-
-    private void swap(Node<T> x, Node<T> y) {
-        if (y.right == x) {
-            y.right = x.right;
-            x.left = y.left;
-            y.right.left = y;
-            x.left.right = x;
-            x.right = y;
-            y.left = x;
-        }
-        else if (x.right == y) {
-            x.right = y.right;
-            y.left = x.left;
-            x.right.left = x;
-            y.left.right = y;
-            y.right = x;
-            x.left = y;
-        }
-        else {
-            Node<T> temp = new Node<>(null);
-            temp.left = x.left;
-            temp.right = x.right;
-            // replace y with x
-            x.left = y.left;
-            y.left.right = x;
-            x.right = y.right;
-            y.right.left = x;
-            // set y on previous place of x
-            temp.left.right = y;
-            y.left = temp.left;
-            temp.right.left = y;
-            y.right = temp.right;
-        }
+    public FibonacciHeap(Comparator<T> comp) {
+        this.comp = comp;
     }
 
     public void insert(T key) {
-        Node<T> x = new Node<>(key);
-        insert(x);
+        Node<T> n = new Node<>(key);
+        insert(n);
     }
 
-    public void insert(Node<T> x) {
-        insertToRootList(x);
-        n++;
+    public void insert(Node<T> n) {
+        insertToRootList(n);
+        size++;
+    }
+
+    private void insertToRootList(Node<T> n) {
+        if (min == null) {
+            min = n;
+        }
+        else {
+            n.left = min.left;
+            min.left.right = n;
+            n.right = min;
+            min.left = n;
+            if (comp.compare(n.key, min.key) < 0)
+                min = n;
+        }
+    }
+
+    private void removeChild(Node<T> c) {
+        if (!c.isChild())
+            throw new IllegalArgumentException();
+
+        if (c.hasNeighbour()) {
+            c.left.right = c.right;
+            c.right.left = c.left;
+            c.parent.child = c.right;
+        } else {
+            c.parent.child = null;
+        }
+        c.parent = null;
+    }
+
+    private void link(Node<T> a, Node<T> b) {
+        // update min if necessary
+        if (min == a)
+            min = b;
+        // remove a from root list
+        a.left.right = a.right;
+        a.right.left = a.left;
+        // set a as child of b
+        if (b.child != null) {
+            a.left = b.child.left;
+            b.child.left.right = a;
+            a.right = b.child;
+            b.child.left = a;
+        }
+        else {
+            a.left = a;
+            a.right = a;
+            b.child = a;
+        }
+        a.parent = b;
+        b.degree++;
+        a.isMarked = false;
     }
 
     public T minimum() {
@@ -146,121 +116,139 @@ public class FibonacciHeap<T extends Comparable<T>>
     }
 
     public FibonacciHeap<T> union(FibonacciHeap<T> H) {
-        FibonacciHeap<T> newHeap = new FibonacciHeap<>();
+        FibonacciHeap<T> newHeap = new FibonacciHeap<>(comp);
 
-        // merge both root lists
         H.min.left.right = min.right;
         min.right.left = H.min.left;
         min.right = H.min;
         H.min.left = min;
 
-        // look for new min
-        if (H.min.key.compareTo(min.key) < 0)
-            newHeap.min = H.min;
-        else
-            newHeap.min = min;
+        newHeap.insertToRootList(H.min);
+        newHeap.min = comp.compare(H.min.key, min.key) < 0 ? H.min : min;
+        newHeap.size = size + H.size;
 
-        newHeap.n = n + H.n;
         return newHeap;
     }
 
     public T extractMin() {
-        Node<T> z = min;
+        Node<T> m = min;
         T v = null;
-        if (z != null) {
-            v = z.key;
-            // add z children to root list
-            while (z.child != null) {
-                Node<T> x = z.child;
-                Node<T> y = x.right;
-                insertToRootList(x);
-                x.parent = null;
-                if (y != x)
-                    z.child = y;
-                else
-                    z.child = null;
+        if (m != null) {
+            v = m.key;
+            // add m children to root list
+            while (m.child != null) {
+                Node<T> c = m.child;
+                removeChild(c);
+                insertToRootList(c);
             }
-            // remove z from root list
-            z.right.left = z.left;
-            z.left.right = z.right;
+            // remove m from root list
+            m.right.left = m.left;
+            m.left.right = m.right;
 
             // look for a new min
-            if (z == z.right) {
+            if (m == m.right) {
                 min = null;
             }
             else {
-                min = z.right;
+                min = m.right;
                 consolidate();
             }
-            n--;
+            size--;
         }
         return v;
     }
 
-    private void cut(Node<T> x, Node<T> y) {
-        x.right.left = x.left;
-        x.left.right = x.right;
-        if (y.child == x) {
-            y.child = x.right == x ? null : x.right;
+    @SuppressWarnings("unchecked")
+    private void consolidate() {
+        Node<T>[] A = new Node[size];
+
+        Node<T> m = min;
+        Node<T> last = min.left;
+        boolean done = false;
+
+        do {
+            Node<T> a = m;
+            m = m.right;
+            if (m.left == last)
+                done = true;
+
+            int d = a.degree;
+            while (A[d] != null) {
+                Node<T> b = A[d];
+                if (comp.compare(a.key, b.key) > 0) {
+                    link(a, b);
+                    a = b;
+                }
+                else {
+                    link(b, a);
+                }
+                A[d] = null;
+                d++;
+            }
+            A[d] = a;
+        } while (!done);
+
+        for (int i = 0; i < size; i++) {
+            if (A[i] != null && comp.compare(A[i].key, min.key) < 0)
+                min = A[i];
         }
-        y.degree--;
-        insertToRootList(x);
-        x.parent = null;
-        x.isMarked = false;
     }
 
-    private void cascadingCut(Node<T> y) {
-        Node<T> z = y.parent;
-        if (z != null) {
-            if (!y.isMarked)
-                y.isMarked = true;
+    private void cut(Node<T> c, Node<T> p) {
+        c.right.left = c.left;
+        c.left.right = c.right;
+        if (p.child == c) {
+            p.child = c.right == c ? null : c.right;
+        }
+        p.degree--;
+        insertToRootList(c);
+        c.parent = null;
+        c.isMarked = false;
+    }
+
+    private void cascadingCut(Node<T> n) {
+        Node<T> p = n.parent;
+        if (p != null) {
+            if (!n.isMarked)
+                n.isMarked = true;
             else {
-                cut(y, z);
-                cascadingCut(z);
+                cut(n, p);
+                cascadingCut(p);
             }
         }
     }
 
-    public void decreaseKey(Node<T> x, T key) {
-        if (key.compareTo(x.key) > 0)
+    public void decreaseKey(Node<T> n, T newKey) {
+        if (comp.compare(newKey, n.key) > 0)
             throw new IllegalArgumentException();
-        x.key = key;
-        Node<T> y = x.parent;
-        if (y != null && x.key.compareTo(y.key) < 0) {
-            cut(x, y);
-            cascadingCut(y);
+
+        n.key = newKey;
+        Node<T> p = n.parent;
+        if (p != null && comp.compare(n.key, p.key) < 0) {
+            cut(n, p);
+            cascadingCut(p);
         }
-        if (x.key.compareTo(min.key) < 0)
-            min = x;
+        if (comp.compare(n.key, min.key) < 0)
+            min = n;
     }
 
     public static class Example
     {
         public static void main(String[] args) {
-            FibonacciHeap<Integer> heap = new FibonacciHeap<>();
-            Node<Integer> n = new Node<>(17);
-            heap.insert(n);
-            heap.insert(3);
-            heap.insert(24);
-            heap.insert(21);
-            heap.insert(7);
-            heap.insert(23);
-            heap.extractMin();
-            heap.decreaseKey(n, 6);
+            FibonacciHeap<Integer> h1 = new FibonacciHeap<>(Integer::compareTo);
+            for (int i = 0; i < 300; i++)
+                h1.insert(i);
+            FibonacciHeap<Integer> h2 = new FibonacciHeap<>(Integer::compareTo);
+            for (int i = 150; i < 450; i++)
+                h2.insert(i);
 
-            FibonacciHeap<Integer> h1 = new FibonacciHeap<>();
-            h1.insert(1);
-            h1.insert(2);
-            h1.insert(3);
-            h1.insert(4);
-
-            FibonacciHeap<Integer> h2 = new FibonacciHeap<>();
-            h2.insert(10);
-            h2.insert(11);
-            h2.insert(12);
-            h2.insert(13);
+            for (int i = 0; i < 100; i++)
+                System.out.print(h1.extractMin() + " ");
+            System.out.println();
 
             FibonacciHeap<Integer> u = h1.union(h2);
+            for (int i = 0; i < 300; i++)
+                System.out.print(u.extractMin() + " ");
         }
     }
 }
