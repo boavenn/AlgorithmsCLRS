@@ -7,7 +7,6 @@ import java.util.*;
 
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
-import static _21_DataStructuresForDisjointSets.WeightedUnionFind.Node;
 
 public abstract class KruskalAlgorithm<T>
 {
@@ -16,20 +15,20 @@ public abstract class KruskalAlgorithm<T>
         // result minimum path
         List<Edge<T>> result = new LinkedList<>();
         // disjoint sets made from graph vertices
-        List<Node<T>> sets = new ArrayList<>(vertices.size());
+        WeightedUnionFind<T> sets = new WeightedUnionFind<>();
         // edges sorted by weight
         List<Edge<T>> edges = graph.getEdges();
         edges.sort(Comparator.comparingInt(Edge::getWeight));
 
         for (Vertex<T> v : vertices)
-            sets.add(WeightedUnionFind.makeSet(v.getKey()));
+            sets.add(v.getKey());
 
         for (Edge<T> e : edges) {
-            Node<T> n1 = sets.get(sets.indexOf(new Node<>(e.getSrc().getKey())));
-            Node<T> n2 = sets.get(sets.indexOf(new Node<>(e.getDest().getKey())));
-            if (WeightedUnionFind.findSet(n1) != WeightedUnionFind.findSet(n2)) {
+            T src = e.getSrc().getKey();
+            T dest = e.getDest().getKey();
+            if (!sets.connected(src, dest)) {
                 result.add(e);
-                WeightedUnionFind.union(n1, n2);
+                sets.union(src, dest);
             }
         }
 

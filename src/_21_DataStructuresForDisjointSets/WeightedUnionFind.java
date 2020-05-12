@@ -1,10 +1,11 @@
 package _21_DataStructuresForDisjointSets;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
-public abstract class WeightedUnionFind<T>
+public class WeightedUnionFind<T>
 {
-    public static class Node<T>
+    private static class Node<T>
     {
         private T value;
         private Node<T> parent;
@@ -15,25 +16,41 @@ public abstract class WeightedUnionFind<T>
             parent = this;
             rank = 0;
         }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Node<?> node = (Node<?>) o;
-            return Objects.equals(value, node.value);
-        }
     }
 
-    public static <T> Node<T> makeSet(T value) {
-        return new Node<>(value);
+    private Map<T, Node<T>> elements = new HashMap<>();
+
+    private boolean exists(T value) {
+        return elements.containsKey(value);
     }
 
-    public static <T> void union(Node<T> x, Node<T> y) {
-        link(findSet(x), findSet(y));
+    public void add(T value) {
+        elements.put(value, new Node<>(value));
     }
 
-    public static <T> void link(Node<T> x, Node<T> y) {
+    public boolean connected(T a, T b) {
+        return findSet(a) != null && findSet(a) == findSet(b);
+    }
+
+    public void union(T a, T b) {
+        if (exists(a) && exists(b))
+            union(elements.get(a), elements.get(b));
+    }
+
+    private void union(Node<T> a, Node<T> b) {
+        Node<T> pa = findSet(a);
+        Node<T> pb = findSet(b);
+        if (pa == pb)
+            return;
+        link(pa, pb);
+    }
+
+    public void link(T a, T b) {
+        if (exists(a) && exists(b))
+            link(elements.get(a), elements.get(b));
+    }
+
+    private void link(Node<T> x, Node<T> y) {
         if (x.rank > y.rank)
             y.parent = x;
         else {
@@ -43,30 +60,30 @@ public abstract class WeightedUnionFind<T>
         }
     }
 
-    public static <T> Node<T> findSet(Node<T> n) {
+    public T findSet(T value) {
+        return exists(value) ? findSet(elements.get(value)).value : null;
+    }
+
+    private Node<T> findSet(Node<T> n) {
         if (n != n.parent)
-            n = findSet(n.parent);
+            n.parent = findSet(n.parent);
         return n.parent;
     }
 
-    @SuppressWarnings("unchecked")
     private static class Example
     {
         public static void main(String[] args) {
-            Node<Integer>[] n = new Node[11];
-            for (int i = 0; i < n.length; i++)
-                n[i] = makeSet(i);
+            WeightedUnionFind<Integer> sets = new WeightedUnionFind<>();
+            for (Integer i : new Integer[]{1, 2, 3, 4, 5, 6, 7, 8})
+                sets.add(i);
 
-            union(n[1], n[3]);
-            union(n[2], n[3]);
-
-            union(n[5], n[6]);
-            union(n[9], n[7]);
-            union(n[7], n[6]);
-            union(n[4], n[7]);
-            union(n[10], n[5]);
-
-            union(n[1], n[5]);
+            sets.union(1, 2);
+            sets.union(3, 4);
+            sets.union(5, 8);
+            sets.union(7, 8);
+            System.out.println(sets.connected(7, 8));
+            sets.union(2, 5);
+            System.out.println(sets.connected(1, 5));
         }
     }
 }
