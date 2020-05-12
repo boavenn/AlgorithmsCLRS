@@ -8,7 +8,7 @@ import java.util.Map;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public abstract class BellmanFord
+public final class BellmanFord
 {
     public static <T> Map<Vertex<T>, Integer> bellmanFordDistance(Graph<T> graph, Vertex<T> src) {
         Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
@@ -42,9 +42,9 @@ public abstract class BellmanFord
 
     private static <T> void validateGraph(Graph<T> graph, Map<Vertex<T>, Integer> map) {
         for (Edge<T> e : graph.getEdges()) {
-            Vertex<T> u = e.getSrc();
-            Vertex<T> v = e.getDest();
-            if (map.get(u) != Integer.MAX_VALUE && map.get(v) > map.get(u) + e.getWeight())
+            Vertex<T> src = e.getSrc();
+            Vertex<T> dest = e.getDest();
+            if (map.get(src) != Integer.MAX_VALUE && map.get(dest) > map.get(src) + e.getWeight())
                 throw new IllegalArgumentException("No shortest paths found in the given graph");
         }
     }

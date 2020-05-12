@@ -1,16 +1,14 @@
 package _24_SingleSourceShortestPaths;
 
+import _19_FibonacciHeap.FibonacciHeap;
 import _22_ElementaryGraphAlgorithms.Graph;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
 
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public abstract class Dijkstra
+public final class Dijkstra
 {
     private static class DijkstraNode<T>
     {
@@ -25,19 +23,20 @@ public abstract class Dijkstra
 
     public static <T> Map<Vertex<T>, Integer> dijkstraDistance(Graph<T> graph, Vertex<T> src) {
         Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
-        Map<Vertex<T>, Boolean> visited = new HashMap<>();
-        PriorityQueue<DijkstraNode<T>> queue = new PriorityQueue<>(Comparator.comparingInt(n -> n.d));
+        HashSet<Vertex<T>> visited = new HashSet<>();
+        // FibonacciHeap is not necessary but changes time complexity from O((E+V)*logV) to O(E+V*logV)
+        FibonacciHeap<DijkstraNode<T>> queue = new FibonacciHeap<>(Comparator.comparingInt(n -> n.d));
 
-        queue.add(new DijkstraNode<>(src, 0));
+        queue.insert(new DijkstraNode<>(src, 0));
 
         while (!queue.isEmpty()) {
-            Vertex<T> v = queue.poll().v;
-            visited.put(v, true);
+            Vertex<T> v = queue.extractMin().v;
+            visited.add(v);
             for (Edge<T> e : graph.getAdjacentEdgesOf(v)) {
                 Vertex<T> dest = e.getDest();
-                if (!visited.containsKey(dest)) {
+                if (!visited.contains(dest)) {
                     Util.relax(map, e);
-                    queue.add(new DijkstraNode<>(dest, map.get(dest)));
+                    queue.insert(new DijkstraNode<>(dest, map.get(dest)));
                 }
             }
         }
@@ -47,27 +46,27 @@ public abstract class Dijkstra
 
     public static <T> Map<Vertex<T>, Vertex<T>> dijkstraPath(Graph<T> graph, Vertex<T> src) {
         Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
-        Map<Vertex<T>, Boolean> visited = new HashMap<>();
-        PriorityQueue<DijkstraNode<T>> queue = new PriorityQueue<>(Comparator.comparingInt(n -> n.d));
-        // if we want to have information about "how to get to" a vertex from the src to get the shortest path
-        Map<Vertex<T>, Vertex<T>> util = new HashMap<>();
+        HashSet<Vertex<T>> visited = new HashSet<>();
+        // FibonacciHeap is not necessary but changes time complexity from O((E+V)*logV) to O(E+V*logV)
+        FibonacciHeap<DijkstraNode<T>> queue = new FibonacciHeap<>(Comparator.comparingInt(n -> n.d));
+        Map<Vertex<T>, Vertex<T>> result = new HashMap<>();
 
-        queue.add(new DijkstraNode<>(src, 0));
+        queue.insert(new DijkstraNode<>(src, 0));
 
         while (!queue.isEmpty()) {
-            Vertex<T> v = queue.poll().v;
-            visited.put(v, true);
+            Vertex<T> v = queue.extractMin().v;
+            visited.add(v);
             for (Edge<T> e : graph.getAdjacentEdgesOf(v)) {
                 Vertex<T> dest = e.getDest();
-                if (!visited.containsKey(dest)) {
+                if (!visited.contains(dest)) {
                     if (Util.relax(map, e))
-                        util.put(dest, v);
-                    queue.add(new DijkstraNode<>(dest, map.get(dest)));
+                        result.put(dest, v);
+                    queue.insert(new DijkstraNode<>(dest, map.get(dest)));
                 }
             }
         }
 
-        return util;
+        return result;
     }
 
     private static class Example
