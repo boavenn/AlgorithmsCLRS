@@ -8,11 +8,13 @@ import java.util.*;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public abstract class KruskalAlgorithm<T>
+public final class KruskalAlgorithm<T>
 {
     public static <T> List<Edge<T>> calc(Graph<T> graph) {
+        if (graph.isDirected())
+            throw new IllegalArgumentException("Graph is directed");
+
         List<Vertex<T>> vertices = graph.getVertices();
-        // result minimum path
         List<Edge<T>> result = new LinkedList<>();
         // disjoint sets made from graph vertices
         WeightedUnionFind<T> sets = new WeightedUnionFind<>();

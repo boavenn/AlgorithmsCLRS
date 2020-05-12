@@ -1,5 +1,6 @@
 package _23_MinimumSpanningTrees;
 
+import _19_FibonacciHeap.FibonacciHeap;
 import _22_ElementaryGraphAlgorithms.Graph;
 
 import java.util.*;
@@ -7,32 +8,36 @@ import java.util.*;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public abstract class PrimAlgorithm
+public final class PrimAlgorithm
 {
     public static <T> List<Edge<T>> calc(Graph<T> graph, Vertex<T> root) {
-        List<Vertex<T>> vertices = graph.getVertices();
-        // result minimum path
-        List<Edge<T>> result = new LinkedList<>();
-        // vertices already included in MSP
-        Map<Vertex<T>, Boolean> visited = new HashMap<>();
-        // priority queue to sort edges by weight
-        PriorityQueue<Edge<T>> queue = new PriorityQueue<>(Comparator.comparingInt(Edge::getWeight));
+        if (graph.isDirected())
+            throw new IllegalArgumentException("Graph is directed");
 
-        visited.put(root, true);
-        queue.addAll(graph.getAdjacentEdgesOf(root));
+        List<Vertex<T>> vertices = graph.getVertices();
+        List<Edge<T>> result = new LinkedList<>();
+        // vertices already included in MST
+        HashSet<Vertex<T>> visited = new HashSet<>();
+        // FibonacciHeap is not necessary but changes time complexity from O(E*logV) to O(E+V*logV)
+        FibonacciHeap<Edge<T>> queue = new FibonacciHeap<>(Comparator.comparingInt(Edge::getWeight));
+
+        visited.add(root);
+        for (Edge<T> e : graph.getAdjacentEdgesOf(root))
+            queue.insert(e);
 
         while (visited.size() != vertices.size()) {
-            Edge<T> min = queue.poll();
-            // if edge destination is already in MSP we omit it
-            while (min != null && visited.containsKey(min.getDest()))
-                min = queue.poll();
+            Edge<T> min = queue.extractMin();
+            // if edge destination is already in MST we omit it
+            while (min != null && visited.contains(min.getDest()))
+                min = queue.extractMin();
 
             if(min == null)
-                throw new IllegalArgumentException("Cannot create MSP from a given graph");
+                throw new IllegalArgumentException("Cannot create MST from a given graph");
 
             result.add(min);
-            visited.put(min.getDest(), true);
-            queue.addAll(graph.getAdjacentEdgesOf(min.getDest()));
+            visited.add(min.getDest());
+            for (Edge<T> e : graph.getAdjacentEdgesOf(min.getDest()))
+                queue.insert(e);
         }
 
         return result;
