@@ -6,7 +6,7 @@ public class Graph<T>
 {
     public static class Vertex<T>
     {
-        protected T key;
+        private T key;
 
         public Vertex(T key) {
             this.key = key;
@@ -51,6 +51,10 @@ public class Graph<T>
             this.weight = weight;
         }
 
+        public Edge(Vertex<T> src, Vertex<T> dest) {
+            this(src, dest, null);
+        }
+
         public Vertex<T> getSrc() {
             return src;
         }
@@ -75,8 +79,12 @@ public class Graph<T>
             this.weight = weight;
         }
 
-        public Edge(Vertex<T> src, Vertex<T> dest) {
-            this(src, dest, null);
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Edge<?> edge = (Edge<?>) o;
+            return src.equals(edge.src) && dest.equals(edge.dest);
         }
 
         @Override
@@ -86,18 +94,38 @@ public class Graph<T>
         }
     }
 
-    protected Map<Vertex<T>, List<Edge<T>>> adj = new HashMap<>();
-    protected boolean directed;
+    private Map<Vertex<T>, List<Edge<T>>> adj = new HashMap<>();
+    private boolean directed;
 
     public Graph(boolean directed) {
         this.directed = directed;
+    }
+
+    public boolean isDirected() {
+        return directed;
+    }
+
+    public int numberOfVertices() {
+        return getVertices().size();
+    }
+
+    public int numberOfEdges() {
+        int n = getEdges().size();
+        return directed ? n : n / 2;
     }
 
     public List<Vertex<T>> getVertices() {
         return new LinkedList<>(adj.keySet());
     }
 
+    public List<Vertex<T>> getAdjacentVerticesOf(T key) {
+        return getAdjacentVerticesOf(new Vertex<>(key));
+    }
+
     public List<Vertex<T>> getAdjacentVerticesOf(Vertex<T> v) {
+        if(!containsVertex(v))
+            return null;
+
         List<Vertex<T>> temp = new LinkedList<>();
         for (Edge<T> e : adj.get(v))
             temp.add(e.dest);
@@ -111,27 +139,57 @@ public class Graph<T>
         return temp;
     }
 
+    public List<Edge<T>> getAdjacentEdgesOf(T key) {
+        return getAdjacentEdgesOf(new Vertex<>(key));
+    }
+
     public List<Edge<T>> getAdjacentEdgesOf(Vertex<T> v) {
-        return new LinkedList<>(adj.get(v));
+        return containsVertex(v) ? new LinkedList<>(adj.get(v)) : null;
+    }
+
+    public void addVertex(T key) {
+        addVertex(new Vertex<>(key));
     }
 
     public void addVertex(Vertex<T> v) {
         adj.putIfAbsent(v, new LinkedList<>());
     }
 
+    public void removeVertex(T key) {
+        removeVertex(new Vertex<>(key));
+    }
+
     public void removeVertex(Vertex<T> v) {
+        if(!containsVertex(v))
+            return;
+
         adj.values().forEach(edges -> edges.removeIf(e -> e.src.equals(v) || e.dest.equals(v)));
         adj.remove(v);
     }
 
+    public void addEdge(T a, T b) {
+        addEdge(new Vertex<>(a), new Vertex<>(b));
+    }
+
+    public void addEdge(Vertex<T> a, Vertex<T> b) {
+        addEdge(a, b, null);
+    }
+
+    public void addEdge(T a, T b, Integer weight) {
+        addEdge(new Vertex<>(a), new Vertex<>(b), weight);
+    }
+
     public void addEdge(Vertex<T> a, Vertex<T> b, Integer weight) {
+        if(containsEdge(new Edge<>(a, b)))
+            return;
+
         adj.get(a).add(new Edge<>(a, b, weight));
         if (!directed)
             adj.get(b).add(new Edge<>(b, a, weight));
     }
 
-    public void addEdge(Vertex<T> a, Vertex<T> b) {
-        addEdge(a, b, null);
+    public void removeEdge(T a, T b) {
+        removeEdge(new Vertex<>(a), new Vertex<>(b));
     }
 
     public void removeEdge(Vertex<T> a, Vertex<T> b) {
@@ -140,40 +198,20 @@ public class Graph<T>
             adj.get(b).removeIf(e -> e.dest.equals(a));
     }
 
-    public boolean contains(Vertex<T> v) {
+    public boolean containsVertex(T key) {
+        return containsVertex(new Vertex<>(key));
+    }
+
+    public boolean containsVertex(Vertex<T> v) {
         return adj.containsKey(v);
     }
 
-    public List<Vertex<T>> getAdjacentVerticesOf(T key) {
-        return getAdjacentVerticesOf(new Vertex<>(key));
+    public boolean containsEdge(T a, T b) {
+        return containsEdge(new Edge<>(new Vertex<>(a), new Vertex<>(b), null));
     }
 
-    public List<Edge<T>> getAdjacentEdgesOf(T key) {
-        return getAdjacentEdgesOf(new Vertex<>(key));
-    }
-
-    public void addVertex(T key) {
-        addVertex(new Vertex<>(key));
-    }
-
-    public void removeVertex(T key) {
-        removeVertex(new Vertex<>(key));
-    }
-
-    public void addEdge(T a, T b, Integer weight) {
-        addEdge(new Vertex<>(a), new Vertex<>(b), weight);
-    }
-
-    public void addEdge(T a, T b) {
-        addEdge(new Vertex<>(a), new Vertex<>(b));
-    }
-
-    public void removeEdge(T a, T b) {
-        removeEdge(new Vertex<>(a), new Vertex<>(b));
-    }
-
-    public boolean contains(T key) {
-        return contains(new Vertex<>(key));
+    public boolean containsEdge(Edge<T> e) {
+        return adj.values().stream().anyMatch(list -> list.contains(e));
     }
 
     @Override

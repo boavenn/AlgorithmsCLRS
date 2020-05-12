@@ -5,22 +5,21 @@ import java.util.*;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public abstract class BreadthFirstSearch
+public final class BreadthFirstSearch
 {
     public static <T> List<Edge<T>> breadthFirstSearchPath(Graph<T> graph, Vertex<T> root) {
         List<Edge<T>> result = new LinkedList<>();
-        Queue<Vertex<T>> queue = new LinkedList<>();
-        // to check whether a vertex was already visited or not
-        Map<Vertex<T>, Boolean> visited = new HashMap<>();
+        HashSet<Vertex<T>> visited = new HashSet<>();
 
+        Queue<Vertex<T>> queue = new LinkedList<>();
         queue.add(root);
-        visited.put(root, true);
+        visited.add(root);
 
         while (!queue.isEmpty()) {
             Vertex<T> vertex = queue.poll();
             for (Vertex<T> v : graph.getAdjacentVerticesOf(vertex)) {
-                if (!visited.containsKey(v)) {
-                    visited.put(v, true);
+                if (!visited.contains(v)) {
+                    visited.add(v);
                     queue.add(v);
                     result.add(new Edge<>(vertex, v));
                 }
@@ -31,26 +30,25 @@ public abstract class BreadthFirstSearch
     }
 
     public static <T> Map<Vertex<T>, Vertex<T>> breadthFirstSearchParentMap(Graph<T> graph, Vertex<T> root) {
-        Queue<Vertex<T>> queue = new LinkedList<>();
-        // to check whether a vertex was already visited or not
-        Map<Vertex<T>, Boolean> visited = new HashMap<>();
-        Map<Vertex<T>, Vertex<T>> util = new HashMap<>();
+        Map<Vertex<T>, Vertex<T>> result = new HashMap<>();
+        HashSet<Vertex<T>> visited = new HashSet<>();
 
+        Queue<Vertex<T>> queue = new LinkedList<>();
         queue.add(root);
-        visited.put(root, true);
+        visited.add(root);
 
         while (!queue.isEmpty()) {
             Vertex<T> vertex = queue.poll();
             for (Vertex<T> v : graph.getAdjacentVerticesOf(vertex)) {
-                if (!visited.containsKey(v)) {
-                    visited.put(v, true);
+                if (!visited.contains(v)) {
+                    visited.add(v);
                     queue.add(v);
-                    util.putIfAbsent(v, vertex);
+                    result.putIfAbsent(v, vertex);
                 }
             }
         }
 
-        return util;
+        return result;
     }
 
     private static class Example
@@ -70,8 +68,8 @@ public abstract class BreadthFirstSearch
 
             System.out.println(graph);
             System.out.println("Breadth first traversal, root: w");
-            System.out.println(BreadthFirstSearch.breadthFirstSearchPath(graph, new Vertex<>('w')));
-            System.out.println(BreadthFirstSearch.breadthFirstSearchParentMap(graph, new Vertex<>('w')));
+            System.out.println("Path: " + BreadthFirstSearch.breadthFirstSearchPath(graph, new Vertex<>('w')));
+            System.out.println("Parent map: " + BreadthFirstSearch.breadthFirstSearchParentMap(graph, new Vertex<>('w')));
         }
     }
 }

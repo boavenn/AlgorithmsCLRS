@@ -4,10 +4,10 @@ import java.util.*;
 
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 
-public abstract class TopologicalSort
+public final class TopologicalSort
 {
     public static <T> List<Vertex<T>> topologicalSort(Graph<T> graph) {
-        if (!graph.directed)
+        if (!graph.isDirected())
             throw new IllegalArgumentException("Graph is not directed");
 
         // true means permanent mark, false - temporary
@@ -25,21 +25,21 @@ public abstract class TopologicalSort
         return temp;
     }
 
-    private static <T> void visit(Graph<T> graph, Vertex<T> v, Map<Vertex<T>, Boolean> visited, Stack<Vertex<T>> stack) {
-        if (visited.containsKey(v) && visited.get(v)) // permanent mark
+    private static <T> void visit(Graph<T> graph, Vertex<T> vertex, Map<Vertex<T>, Boolean> visited, Stack<Vertex<T>> stack) {
+        if (visited.containsKey(vertex) && visited.get(vertex)) // permanent mark
             return;
-        if (visited.containsKey(v) && !visited.get(v)) // temporary mark
+        if (visited.containsKey(vertex) && !visited.get(vertex)) // temporary mark
             throw new IllegalArgumentException("Graph is not a DAG");
 
         // temporary mark
-        visited.put(v, false);
+        visited.put(vertex, false);
 
-        for (Vertex<T> vtx : graph.getAdjacentVerticesOf(v.getKey()))
-            visit(graph, vtx, visited, stack);
+        for (Vertex<T> v : graph.getAdjacentVerticesOf(vertex))
+            visit(graph, v, visited, stack);
 
         // permanent mark
-        visited.put(v, true);
-        stack.push(v);
+        visited.put(vertex, true);
+        stack.push(vertex);
     }
 
     private static class Example

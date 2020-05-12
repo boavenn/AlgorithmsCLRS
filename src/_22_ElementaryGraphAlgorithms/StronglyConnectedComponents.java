@@ -4,17 +4,16 @@ import java.util.*;
 
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 
-public abstract class StronglyConnectedComponents
+public final class StronglyConnectedComponents<T>
 {
     public static <T> List<Graph<T>> stronglyConnectedComponents(Graph<T> graph) {
-        if (!graph.directed)
+        if (!graph.isDirected())
             throw new IllegalArgumentException("Graph is not directed");
 
+        Graph<T> transposedGraph = Graph.transpose(graph);
         Map<Vertex<T>, Graph<T>> components = new HashMap<>();
         Stack<Vertex<T>> stack = new Stack<>();
-        Graph<T> transposedGraph = Graph.transpose(graph);
-        // to check whether a vertex was already visited or not
-        Map<Vertex<T>, Boolean> visited = new HashMap<>();
+        HashSet<Vertex<T>> visited = new HashSet<>();
 
         for (Vertex<T> v : graph.getVertices())
             visit(graph, v, visited, stack);
@@ -23,16 +22,16 @@ public abstract class StronglyConnectedComponents
         visited.clear();
 
         while (!stack.isEmpty()) {
-            Vertex<T> u = stack.pop();
-            assign(transposedGraph, u, u, visited, components);
+            Vertex<T> v = stack.pop();
+            assign(transposedGraph, v, v, visited, components);
         }
 
-        // can be omitted if you dont care about links in subgraphs
-        for (Vertex<T> v : graph.getVertices()) {
-            Graph<T> subGraph = components.get(v);
-            for (Vertex<T> u : graph.getAdjacentVerticesOf(v)) {
-                if (subGraph.contains(u)) {
-                    subGraph.addEdge(v.getKey(), u.getKey());
+        // can be omitted if you dont care about links in the subgraphs
+        for (Vertex<T> src : graph.getVertices()) {
+            Graph<T> subgraph = components.get(src);
+            for (Vertex<T> dest : graph.getAdjacentVerticesOf(src)) {
+                if (subgraph.containsVertex(dest)) {
+                    subgraph.addEdge(src.getKey(), dest.getKey());
                 }
             }
         }
@@ -40,11 +39,11 @@ public abstract class StronglyConnectedComponents
         return new LinkedList<>(new HashSet<>(components.values()));
     }
 
-    private static <T> void visit(Graph<T> graph, Vertex<T> v, Map<Vertex<T>, Boolean> visited, Stack<Vertex<T>> stack) {
-        if (visited.containsKey(v))
+    private static <T> void visit(Graph<T> graph, Vertex<T> v, HashSet<Vertex<T>> visited, Stack<Vertex<T>> stack) {
+        if (visited.contains(v))
             return;
 
-        visited.put(v, true);
+        visited.add(v);
 
         for (Vertex<T> u : graph.getAdjacentVerticesOf(v))
             visit(graph, u, visited, stack);
@@ -53,8 +52,8 @@ public abstract class StronglyConnectedComponents
     }
 
     private static <T> void assign(Graph<T> graph, Vertex<T> v, Vertex<T> root,
-                                   Map<Vertex<T>, Boolean> visited, Map<Vertex<T>, Graph<T>> components) {
-        if (visited.containsKey(v))
+                                   HashSet<Vertex<T>> visited, Map<Vertex<T>, Graph<T>> components) {
+        if (visited.contains(v))
             return;
 
         if (!components.containsKey(root))
@@ -65,9 +64,9 @@ public abstract class StronglyConnectedComponents
             components.put(v, components.get(root));
 
         components.get(root).addVertex(v);
-        visited.put(v, true);
+        visited.add(v);
 
-        for (Vertex<T> u : graph.getAdjacentVerticesOf(v.getKey()))
+        for (Vertex<T> u : graph.getAdjacentVerticesOf(v))
             assign(graph, u, root, visited, components);
     }
 

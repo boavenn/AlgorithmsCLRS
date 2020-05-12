@@ -5,22 +5,21 @@ import java.util.*;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public abstract class DepthFirstSearch
+public final class DepthFirstSearch
 {
     public static <T> List<Edge<T>> depthFirstSearchPath(Graph<T> graph, Vertex<T> root) {
         List<Edge<T>> result = new LinkedList<>();
-        Stack<Vertex<T>> stack = new Stack<>();
-        // to check whether a vertex was already visited or not
-        Map<Vertex<T>, Boolean> visited = new HashMap<>();
-        // utility map so we can put edges to result in order in which they were discovered
+        HashSet<Vertex<T>> visited = new HashSet<>();
+        // utility <child, parent> map so we can put edges to result list in order in which they were discovered
         Map<Vertex<T>, Vertex<T>> util = new HashMap<>();
 
+        Stack<Vertex<T>> stack = new Stack<>();
         stack.push(root);
 
         while (!stack.isEmpty()) {
             Vertex<T> vertex = stack.pop();
-            if (!visited.containsKey(vertex)) {
-                visited.put(vertex, true);
+            if (!visited.contains(vertex)) {
+                visited.add(vertex);
                 if (util.containsKey(vertex))
                     result.add(new Edge<>(util.get(vertex), vertex));
                 for (Vertex<T> v : graph.getAdjacentVerticesOf(vertex)) {
@@ -34,25 +33,24 @@ public abstract class DepthFirstSearch
     }
 
     public static <T> Map<Vertex<T>, Vertex<T>> depthFirstSearchParentMap(Graph<T> graph, Vertex<T> root) {
+        Map<Vertex<T>, Vertex<T>> result = new HashMap<>();
         Stack<Vertex<T>> stack = new Stack<>();
-        // to check whether a vertex was already visited or not
-        Map<Vertex<T>, Boolean> visited = new HashMap<>();
-        Map<Vertex<T>, Vertex<T>> util = new HashMap<>();
+        HashSet<Vertex<T>> visited = new HashSet<>();
 
         stack.push(root);
 
         while (!stack.isEmpty()) {
             Vertex<T> vertex = stack.pop();
-            if (!visited.containsKey(vertex)) {
-                visited.put(vertex, true);
+            if (!visited.contains(vertex)) {
+                visited.add(vertex);
                 for (Vertex<T> v : graph.getAdjacentVerticesOf(vertex)) {
                     stack.push(v);
-                    util.putIfAbsent(v, vertex);
+                    result.putIfAbsent(v, vertex);
                 }
             }
         }
 
-        return util;
+        return result;
     }
 
     private static class Example
@@ -72,8 +70,8 @@ public abstract class DepthFirstSearch
 
             System.out.println(graph);
             System.out.println("Depth first traversal, root: w");
-            System.out.println(DepthFirstSearch.depthFirstSearchPath(graph, new Vertex<>('w')));
-            System.out.println(DepthFirstSearch.depthFirstSearchParentMap(graph, new Vertex<>('w')));
+            System.out.println("Path: " + DepthFirstSearch.depthFirstSearchPath(graph, new Vertex<>('w')));
+            System.out.println("Parent map: " + DepthFirstSearch.depthFirstSearchParentMap(graph, new Vertex<>('w')));
 
             Graph<Integer> graph2 = new Graph<>(true);
             Integer[] V2 = {0, 1, 2, 3, 4, 5, 6, 7};
@@ -89,8 +87,8 @@ public abstract class DepthFirstSearch
 
             System.out.println("\n" + graph2);
             System.out.println("Depth first traversal, root: 0");
-            System.out.println(DepthFirstSearch.depthFirstSearchPath(graph2, new Vertex<>(0)));
-            System.out.println(DepthFirstSearch.depthFirstSearchParentMap(graph2, new Vertex<>(0)));
+            System.out.println("Path: " + DepthFirstSearch.depthFirstSearchPath(graph2, new Vertex<>(0)));
+            System.out.println("Parent map: " + DepthFirstSearch.depthFirstSearchParentMap(graph2, new Vertex<>(0)));
         }
     }
 }
