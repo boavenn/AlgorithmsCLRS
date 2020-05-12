@@ -49,6 +49,14 @@ public class FibonacciHeap<T>
         this.comp = comp;
     }
 
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    public int size() {
+        return size;
+    }
+
     public void insert(T key) {
         Node<T> n = new Node<>(key);
         insert(n);
