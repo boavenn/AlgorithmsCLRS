@@ -10,7 +10,7 @@ import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 import static _25_AllPairsShortestPaths.Util.VertexMatrix;
 
-public abstract class Johnson<T>
+public final class Johnson<T>
 {
     public static <T> VertexMatrix<T, Integer> johnson(Graph<T> graph) {
         Graph<T> g = copy(graph);
@@ -36,7 +36,7 @@ public abstract class Johnson<T>
     }
 
     private static <T> Graph<T> copy(Graph<T> graph) {
-        Graph<T> temp = new Graph<>(true);
+        Graph<T> temp = new Graph<>(graph.isDirected());
         for (Vertex<T> v : graph.getVertices())
             temp.addVertex(v.getKey());
         for (Edge<T> e : graph.getEdges())

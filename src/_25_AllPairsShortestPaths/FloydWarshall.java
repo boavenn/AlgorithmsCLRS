@@ -6,7 +6,7 @@ import static _25_AllPairsShortestPaths.Util.VertexMatrix;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public abstract class FloydWarshall<T>
+public final class FloydWarshall<T>
 {
     public static <T> VertexMatrix<T, Integer> floydWarshallDistances(Graph<T> graph) {
         VertexMatrix<T, Integer> M1 = Util.asMatrix(graph, Integer.MAX_VALUE, 0);

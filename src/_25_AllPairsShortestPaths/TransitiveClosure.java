@@ -5,7 +5,7 @@ import _22_ElementaryGraphAlgorithms.Graph;
 import static _25_AllPairsShortestPaths.Util.VertexMatrix;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 
-public class TransitiveClosure<T>
+public final class TransitiveClosure<T>
 {
     public static <T> VertexMatrix<T, Integer> transitiveClosure(Graph<T> graph) {
         VertexMatrix<T, Integer> T1 = new VertexMatrix<>(graph.getVertices(), 0);

@@ -7,7 +7,7 @@ import java.util.*;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public abstract class Util<T>
+public final class Util<T>
 {
     public static class VertexMatrix<T, V>
     {
@@ -15,10 +15,11 @@ public abstract class Util<T>
 
         public VertexMatrix(Collection<Vertex<T>> vertices, V defaultValue) {
             for (Vertex<T> v : vertices) {
-                matrix.put(v, new HashMap<>());
+                Map<Vertex<T>, V> map = new HashMap<>();
                 for (Vertex<T> u : vertices) {
-                    matrix.get(v).put(u, defaultValue);
+                    map.put(u, defaultValue);
                 }
+                matrix.put(v, map);
             }
         }
 
@@ -66,7 +67,7 @@ public abstract class Util<T>
     }
 
     public static <T> VertexMatrix<T, Integer> extendShortestPaths(VertexMatrix<T, Integer> L, VertexMatrix<T, Integer> W) {
-        VertexMatrix<T, Integer> temp = new VertexMatrix<>(L.getVertices(), Integer.MAX_VALUE);
+        VertexMatrix<T, Integer> res = new VertexMatrix<>(L.getVertices(), Integer.MAX_VALUE);
 
         for (Vertex<T> i : L.getVertices()) {
             for (Vertex<T> j : L.getVertices()) {
@@ -74,14 +75,14 @@ public abstract class Util<T>
                     Integer ik = L.get(i, k);
                     Integer kj = W.get(k, j);
                     if (!sumOverflow(ik, kj)) {
-                        Integer value = Math.min(temp.get(i, j), ik + kj);
-                        temp.set(i, j, value);
+                        Integer value = Math.min(res.get(i, j), ik + kj);
+                        res.set(i, j, value);
                     }
                 }
             }
         }
 
-        return temp;
+        return res;
     }
 
     public static <T> List<Vertex<T>> getAllPairsShortestPath(VertexMatrix<T, Vertex<T>> paths, Vertex<T> i, Vertex<T> j) {

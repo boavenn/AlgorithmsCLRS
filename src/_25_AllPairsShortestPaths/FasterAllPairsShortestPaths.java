@@ -4,7 +4,7 @@ import _22_ElementaryGraphAlgorithms.Graph;
 
 import static _25_AllPairsShortestPaths.Util.VertexMatrix;
 
-public abstract class FasterAllPairsShortestPaths<T>
+public final class FasterAllPairsShortestPaths<T>
 {
     public static <T> VertexMatrix<T, Integer> fasterAllPairsShortestPaths(Graph<T> graph) {
         VertexMatrix<T, Integer> L = Util.asMatrix(graph, Integer.MAX_VALUE, 0);
