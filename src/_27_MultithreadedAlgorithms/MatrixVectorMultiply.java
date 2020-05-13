@@ -1,14 +1,11 @@
 package _27_MultithreadedAlgorithms;
 
 import java.util.Arrays;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
-public abstract class MatrixVectorMultiply
+public final class MatrixVectorMultiply
 {
-    private static class MainLoop implements Callable<Object>
+    private static class MainLoop extends RecursiveAction
     {
         private int[][] matrix;
         private int[] vector;
@@ -27,34 +24,36 @@ public abstract class MatrixVectorMultiply
         }
 
         @Override
-        public Object call() throws Exception {
+        protected void compute() {
             if (i == j) {
                 for (int k = 0; k < size; k++)
                     result[i] += matrix[i][k] * vector[k];
             }
             else {
-                ExecutorService executor = Executors.newSingleThreadExecutor();
                 int mid = (i + j) / 2;
-                executor.submit(new MainLoop(matrix, vector, result, size, i, mid)).get();
-                executor.shutdown();
-                new MainLoop(matrix, vector, result, size, mid + 1, j).call();
+
+                MainLoop left = new MainLoop(matrix, vector, result, size, i, mid);
+                MainLoop right = new MainLoop(matrix, vector, result, size, mid + 1, j);
+
+                left.fork();
+
+                right.compute();
+                left.join();
             }
-            return null;
         }
     }
 
-    public static int[] matrixVectorMultiply(int[][] matrix, int[] vector) throws ExecutionException, InterruptedException {
+    public static int[] matrixVectorMultiply(int[][] matrix, int[] vector) {
         int size = matrix.length;
         int[] result = new int[size];
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(new MainLoop(matrix, vector, result, size, 0, size - 1)).get();
-        executor.shutdown();
+        ForkJoinPool pool = ForkJoinPool.commonPool();
+        pool.invoke(new MainLoop(matrix, vector, result, size, 0, size - 1));
         return result;
     }
 
     private static class Example
     {
-        public static void main(String[] args) throws ExecutionException, InterruptedException {
+        public static void main(String[] args) {
             int[][] matrix = {
                     {1, 2, 3, 4},
                     {3, 2, 4, 1},

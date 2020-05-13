@@ -2,15 +2,13 @@ package _27_MultithreadedAlgorithms;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
-public abstract class SquareMatrixMultiply
+public final class SquareMatrixMultiply
 {
-    private static class OuterLoop implements Callable<Object>
+    private static class OuterLoop extends RecursiveAction
     {
-        private class InnerLoop implements Callable<Object>
+        private class InnerLoop extends RecursiveAction
         {
             private int j;
 
@@ -19,10 +17,9 @@ public abstract class SquareMatrixMultiply
             }
 
             @Override
-            public Object call() {
+            protected void compute() {
                 for (int k = 0; k < size; k++)
                     res[i][j] += a[i][k] * b[k][j];
-                return null;
             }
         }
 
@@ -41,35 +38,40 @@ public abstract class SquareMatrixMultiply
         }
 
         @Override
-        public Object call() throws Exception {
-            ExecutorService executor = Executors.newFixedThreadPool(size);
-            List<InnerLoop> pool = new LinkedList<>();
+        protected void compute() {
+            List<RecursiveAction> loops = new LinkedList<>();
             for (int k = 0; k < size; k++)
-                pool.add(new InnerLoop(k));
-            executor.invokeAll(pool);
-            executor.shutdown();
-            return null;
+                loops.add(new InnerLoop(k));
+            ForkJoinTask.invokeAll(loops);
         }
     }
 
-    public static int[][] squareMatrixMultiply(int[][] a, int[][] b) throws InterruptedException {
+    public static int[][] squareMatrixMultiply(int[][] a, int[][] b) {
         int size = a.length;
         int[][] res = new int[size][size];
-        ExecutorService executor = Executors.newFixedThreadPool(size);
 
-        List<OuterLoop> pool = new LinkedList<>();
+        List<OuterLoop> loops = new LinkedList<>();
         for (int k = 0; k < size; k++)
-            pool.add(new OuterLoop(a, b, res, size, k));
-        executor.invokeAll(pool);
-        executor.shutdown();
+            loops.add(new OuterLoop(a, b, res, size, k));
+        ForkJoinTask.invokeAll(loops);
         return res;
     }
 
     private static class Example
     {
-        public static void main(String[] args) throws InterruptedException {
-            int[][] a = {{1, 2}, {4, 3}};
-            int[][] b = {{4, 1}, {2, 4}};
+        public static void main(String[] args) {
+            int[][] a = {
+                    {1, 2, 2, 3},
+                    {1, 2, 2, 1},
+                    {3, 3, 1, 2},
+                    {1, 2, 1, 1}
+            };
+            int[][] b = {
+                    {1, 2, 3, 1},
+                    {1, 1, 3, 2},
+                    {2, 1, 2, 3},
+                    {2, 3, 1, 1}
+            };
             printMatrix(squareMatrixMultiply(a, b));
         }
     }

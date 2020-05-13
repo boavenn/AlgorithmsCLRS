@@ -4,13 +4,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
 
-public abstract class SquareMatrixMultiplyRecursive
+public final class SquareMatrixMultiplyRecursive
 {
-    private static class Multiply implements Callable<Object>
+    private static class Multiply extends RecursiveAction
     {
-        private class OuterLoop implements Callable<Object>
+        private class OuterLoop extends RecursiveAction
         {
-            private class InnerLoop implements Callable<Object>
+            private class InnerLoop extends RecursiveAction
             {
                 private int j;
 
@@ -19,9 +19,8 @@ public abstract class SquareMatrixMultiplyRecursive
                 }
 
                 @Override
-                public Object call() {
+                protected void compute() {
                     c[i + rowC][j + colC] += t[i][j];
-                    return null;
                 }
             }
 
@@ -34,14 +33,11 @@ public abstract class SquareMatrixMultiplyRecursive
             }
 
             @Override
-            public Object call() throws Exception {
-                ExecutorService executor = Executors.newFixedThreadPool(size);
-                List<InnerLoop> innerLoops = new LinkedList<>();
+            protected void compute() {
+                List<InnerLoop> loops = new LinkedList<>();
                 for (int j = 0; j < size; j++)
-                    innerLoops.add(new InnerLoop(j));
-                executor.invokeAll(innerLoops);
-                executor.shutdown();
-                return null;
+                    loops.add(new InnerLoop(j));
+                RecursiveTask.invokeAll(loops);
             }
         }
 
@@ -71,15 +67,13 @@ public abstract class SquareMatrixMultiplyRecursive
 
         // looks a bit intimidating lol
         @Override
-        public Object call() throws Exception {
+        protected void compute() {
             if (size == 1) {
                 c[rowC][colC] = a[rowA][colA] * b[rowB][colB];
-            }
-            else {
+            } else {
                 int[][] t = new int[size][size];
                 int n = size / 2;
-                ExecutorService executor = Executors.newFixedThreadPool(7);
-                List<Callable<Object>> pool = new LinkedList<>();
+                List<RecursiveAction> pool = new LinkedList<>();
                 // c11, a11, b11
                 pool.add(new Multiply(c, a, b, rowC, colC, rowA, colA, rowB, colB, n));
                 // c12, a11, b12
@@ -95,31 +89,28 @@ public abstract class SquareMatrixMultiplyRecursive
                 // t21, a22, b21
                 pool.add(new Multiply(t, a, b, n, 0, rowA + n, colA + n, rowB + n, colB, n));
                 // t22, a22, b22
-                new Multiply(t, a, b, n, n, rowA + n, colA + n, rowB + n, colB + n, n).call();
-                executor.invokeAll(pool);
+                pool.add(new Multiply(t, a, b, n, n, rowA + n, colA + n, rowB + n, colB + n, n));
+                RecursiveTask.invokeAll(pool);
 
                 pool.clear();
                 for (int i = 0; i < size; i++)
                     pool.add(new OuterLoop(t, i));
-                executor.invokeAll(pool);
-                executor.shutdown();
+                RecursiveTask.invokeAll(pool);
             }
-            return null;
         }
     }
 
-    public static int[][] squareMatrixMultiplyRecursive(int[][] a, int[][] b) throws ExecutionException, InterruptedException {
+    public static int[][] squareMatrixMultiplyRecursive(int[][] a, int[][] b) {
         int size = a.length;
         int[][] res = new int[size][size];
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(new Multiply(res, a, b, 0, 0, 0, 0, 0, 0, size)).get();
-        executor.shutdown();
+        ForkJoinPool pool = ForkJoinPool.commonPool();
+        pool.invoke(new Multiply(res, a, b, 0, 0, 0,0, 0, 0, size));
         return res;
     }
 
     private static class Example
     {
-        public static void main(String[] args) throws ExecutionException, InterruptedException {
+        public static void main(String[] args) {
             int[][] a = {
                     {1, 2, 2, 3},
                     {1, 2, 2, 1},
