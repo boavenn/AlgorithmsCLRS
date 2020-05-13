@@ -8,9 +8,9 @@ import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 import static _25_AllPairsShortestPaths.Util.VertexMatrix;
 
-abstract class Util
+public final class Util
 {
-    static class Node
+    public static class Node
     {
         Integer height;
         Integer excess;
@@ -21,7 +21,7 @@ abstract class Util
         }
     }
 
-    static class Pipe
+    public static class Pipe
     {
         Integer capacity;
         Integer flow;

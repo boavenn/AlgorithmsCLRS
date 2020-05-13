@@ -2,16 +2,13 @@ package _26_MaximumFlow;
 
 import _22_ElementaryGraphAlgorithms.Graph;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _25_AllPairsShortestPaths.Util.VertexMatrix;
 import static _25_AllPairsShortestPaths.Util.*;
 
-public abstract class EdmondsCarp
+public final class EdmondsCarp
 {
     public static <T> Integer edmondsCarp(Graph<T> graph, Vertex<T> src, Vertex<T> sink) {
         Graph<T> resGraph = Util.createResidualGraph(graph);
@@ -47,18 +44,17 @@ public abstract class EdmondsCarp
 
     private static <T> Map<Vertex<T>, Vertex<T>> augmentedBfs(Graph<T> graph, VertexMatrix<T, Integer> weights, Vertex<T> root) {
         Queue<Vertex<T>> queue = new LinkedList<>();
-        // to check whether a vertex was already visited or not
-        Map<Vertex<T>, Boolean> visited = new HashMap<>();
+        HashSet<Vertex<T>> visited = new HashSet<>();
         Map<Vertex<T>, Vertex<T>> util = new HashMap<>();
 
         queue.add(root);
-        visited.put(root, true);
+        visited.add(root);
 
         while (!queue.isEmpty()) {
             Vertex<T> vertex = queue.poll();
             for (Vertex<T> v : graph.getAdjacentVerticesOf(vertex)) {
-                if (!visited.containsKey(v) && weights.get(vertex, v) > 0) {
-                    visited.put(v, true);
+                if (!visited.contains(v) && weights.get(vertex, v) > 0) {
+                    visited.add(v);
                     queue.add(v);
                     util.putIfAbsent(v, vertex);
                 }

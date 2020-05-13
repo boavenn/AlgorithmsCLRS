@@ -12,7 +12,7 @@ import static _26_MaximumFlow.Util.Pipe;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _25_AllPairsShortestPaths.Util.VertexMatrix;
 
-public abstract class PushRelabelFifo
+public final class PushRelabelFifo
 {
     public static <T> Integer pushRelabelFifo(Graph<T> graph, Vertex<T> src, Vertex<T> sink) {
         Map<Vertex<T>, Node> nodes = new HashMap<>();
