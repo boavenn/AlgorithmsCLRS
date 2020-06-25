@@ -44,19 +44,4 @@ public class StackArrayImpl<T>
     public boolean isFull() {
         return top + 1 == arr.length;
     }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            StackArrayImpl<Integer> stack = new StackArrayImpl<>();
-            stack.push(1);
-            stack.push(2);
-            stack.push(3);
-            System.out.println(stack.top());
-            System.out.println(stack.pop());
-            System.out.println(stack.pop());
-            System.out.println(stack.pop());
-            System.out.println("Size: " + stack.size());
-        }
-    }
 }

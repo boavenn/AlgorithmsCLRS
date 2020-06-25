@@ -44,19 +44,4 @@ public class StackListImpl<T>
     public boolean isEmpty() {
         return size == 0;
     }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            StackListImpl<Integer> stack = new StackListImpl<>();
-            stack.push(1);
-            stack.push(2);
-            stack.push(3);
-            System.out.println(stack.top());
-            System.out.println(stack.pop());
-            System.out.println(stack.pop());
-            System.out.println(stack.pop());
-            System.out.println("Size: " + stack.size());
-        }
-    }
 }

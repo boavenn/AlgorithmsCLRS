@@ -128,20 +128,4 @@ public class DoublyLinkedListImpl<T>
     public boolean isEmpty() {
         return size == 0;
     }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            DoublyLinkedListImpl<Integer> list = new DoublyLinkedListImpl<>();
-            list.insert(1);
-            list.insert(2);
-            list.insert(3);
-            list.remove(0);
-            list.remove(Integer.valueOf(3));
-            System.out.println(list.get(0));
-            list.remove(0);
-            System.out.println("Size: " + list.size());
-            System.out.println(list.isEmpty());
-        }
-    }
 }

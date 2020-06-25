@@ -129,20 +129,4 @@ public class SinglyLinkedListImpl<T>
 
         return temp;
     }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            SinglyLinkedListImpl<Integer> list = new SinglyLinkedListImpl<>();
-            list.insert(1);
-            list.insert(2);
-            list.insert(3);
-            list.remove(0);
-            list.remove(Integer.valueOf(3));
-            System.out.println(list.get(0));
-            list.remove(0);
-            System.out.println("Size: " + list.size());
-            System.out.println(list.isEmpty());
-        }
-    }
 }
