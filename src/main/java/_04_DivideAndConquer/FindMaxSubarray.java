@@ -27,7 +27,7 @@ public final class FindMaxSubarray
     }
 
     private static int findMaxSubarray(int[] arr, int begin, int end) {
-        if(begin == end)
+        if (begin == end)
             return arr[begin];
 
         int mid = (begin + end) / 2;
@@ -51,14 +51,5 @@ public final class FindMaxSubarray
         }
 
         return max_sum;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            int[] arr = {13, -3, -25, 20, -3, -16, -23, 18, 20, -7, 12, -5, -22, 15, -4, 7};
-            System.out.println(recursive(arr));
-            System.out.println(iterative(arr));
-        }
     }
 }

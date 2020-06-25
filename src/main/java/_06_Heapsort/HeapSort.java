@@ -1,15 +1,13 @@
 package _06_Heapsort;
 
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Random;
 
 public final class HeapSort
 {
     public static <T> void sort(T[] arr, Comparator<T> comp) {
         int heapSize = arr.length;
         buildHeap(arr, comp, heapSize);
-        for(int i = arr.length - 1; i >= 1; i--) {
+        for (int i = arr.length - 1; i >= 1; i--) {
             swap(arr, 0, i);
             heapSize--;
             heapify(arr, comp, heapSize, 0);
@@ -21,22 +19,22 @@ public final class HeapSort
         int right = left + 1;
         int largest;
 
-        if(left < heapSize && comp.compare(arr[left], arr[i]) > 0)
+        if (left < heapSize && comp.compare(arr[left], arr[i]) > 0)
             largest = left;
         else
             largest = i;
 
-        if(right < heapSize && comp.compare(arr[right], arr[largest]) > 0)
+        if (right < heapSize && comp.compare(arr[right], arr[largest]) > 0)
             largest = right;
 
-        if(largest != i) {
+        if (largest != i) {
             swap(arr, i, largest);
             heapify(arr, comp, heapSize, largest);
         }
     }
 
     private static <T> void buildHeap(T[] arr, Comparator<T> comp, int heapSize) {
-        for(int i = arr.length / 2 - 1; i >= 0; i--)
+        for (int i = arr.length / 2 - 1; i >= 0; i--)
             heapify(arr, comp, heapSize, i);
     }
 
@@ -44,18 +42,5 @@ public final class HeapSort
         T temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            Integer[] arr = new Integer[50];
-            Random r = new Random();
-            for(int i = 0; i < arr.length; i++)
-                arr[i] = r.nextInt(1000);
-
-            sort(arr, Integer::compareTo);
-            System.out.println(Arrays.toString(arr));
-        }
     }
 }

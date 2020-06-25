@@ -6,16 +6,20 @@ import java.util.Random;
 public final class RandomizedSelect
 {
     // returns i-th smallest element
-    public static <T> T randomizedSelect(T[] arr, Comparator<T> comp, int begin, int end, int i) {
+    public static <T> T randomizedSelect(T[] arr, Comparator<T> comp, int i) {
+        return randomizedSelect(arr, comp, 0, arr.length - 1, i);
+    }
+
+    private static <T> T randomizedSelect(T[] arr, Comparator<T> comp, int begin, int end, int i) {
         if (i < 1 || i > arr.length - 1)
             throw new IllegalArgumentException();
 
-        if(begin == end)
+        if (begin == end)
             return arr[begin];
 
         int q = randomizedPartition(arr, comp, begin, end);
         int k = q - begin + 1;
-        if(i == k)
+        if (i == k)
             return arr[q];
         else if (i < k)
             return randomizedSelect(arr, comp, begin, q - 1, i);
@@ -29,10 +33,10 @@ public final class RandomizedSelect
 
         T x = arr[end];
         int i = begin - 1;
-        for(int j = begin; j < end; j++)
-            if(comp.compare(arr[j], x) <= 0) {
+        for (int j = begin; j < end; j++)
+            if (comp.compare(arr[j], x) <= 0) {
                 i++;
-                swap(arr, i ,j);
+                swap(arr, i, j);
             }
         swap(arr, i + 1, end);
         return i + 1;
@@ -42,13 +46,5 @@ public final class RandomizedSelect
         T temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            Integer[] arr = {2, 0, 5, 9, 6, 3, 1, 4, 7, 8};
-            System.out.println(randomizedSelect(arr, Integer::compareTo, 0, arr.length - 1, 33));
-        }
     }
 }

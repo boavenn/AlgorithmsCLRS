@@ -7,7 +7,7 @@ public final class RecursiveMatrixMultiplication
         int n = A.length;
         int[][] C = new int[n][n];
 
-        if(n == 1)
+        if (n == 1)
             C[0][0] = A[0][0] * B[0][0];
         else {
             int size = n / 2;
@@ -36,44 +36,16 @@ public final class RecursiveMatrixMultiplication
      */
     private static int[][] divideMatrix(int[][] src, int n, int y, int x) {
         int[][] temp = new int[n][n];
-        for(int i = 0; i < n; i++)
-            for(int j = 0; j < n; j++)
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
                 temp[i][j] = src[y + i][x + j];
         return temp;
     }
 
     private static void addMatrices(int[][] dest, int[][] A, int[][] B, int y, int x) {
         int n = A.length;
-        for(int i = 0; i < n; i++)
-            for(int j = 0; j < n; j++)
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
                 dest[y + i][x + j] = A[i][j] + B[i][j];
-    }
-
-    private static void printMatrix(int[][] matrix) {
-        int len = matrix.length;
-        for(int i = 0; i < len; i++) {
-            for(int j = 0; j < len; j++)
-                System.out.print(matrix[i][j] + " ");
-            System.out.println();
-        }
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            int[][] a = {
-                    {1, 2, 2, 3},
-                    {1, 2, 2, 1},
-                    {3, 3, 1, 2},
-                    {1, 2, 1, 1}
-            };
-            int[][] b = {
-                    {1, 2, 3, 1},
-                    {1, 1, 3, 2},
-                    {2, 1, 2, 3},
-                    {2, 3, 1, 1}
-            };
-            printMatrix(calc(a, b));
-        }
     }
 }

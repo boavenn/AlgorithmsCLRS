@@ -1,7 +1,6 @@
 package _06_Heapsort;
 
 import java.util.Comparator;
-import java.util.Random;
 
 public class PriorityQueue<T>
 {
@@ -35,10 +34,8 @@ public class PriorityQueue<T>
 
         T res = arr[0];
         top--;
-        if (size() > 1) {
-            swap(0, size());
-            sink(0);
-        }
+        swap(0, size());
+        sink(0);
         return res;
     }
 
@@ -93,22 +90,5 @@ public class PriorityQueue<T>
         T[] newArr = (T[]) new Object[capacity];
         System.arraycopy(arr, 0, newArr, 0, size());
         arr = newArr;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            Integer[] arr = new Integer[50];
-            Random r = new Random();
-            for(int i = 0; i < arr.length; i++)
-                arr[i] = r.nextInt(100);
-
-            PriorityQueue<Integer> q = new PriorityQueue<>(Integer::compareTo);
-            for (Integer i : arr)
-                q.enqueue(i);
-            while(!q.isEmpty()) {
-                System.out.print(q.dequeue() + " ");
-            }
-        }
     }
 }

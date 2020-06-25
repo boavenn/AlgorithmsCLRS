@@ -1,6 +1,5 @@
 package _07_QuickSort;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 
@@ -11,7 +10,7 @@ public final class QuickSort
     }
 
     private static <T> void quickSort(T[] arr, Comparator<T> comp, int begin, int end) {
-        if(begin < end) {
+        if (begin < end) {
             int q = partition(arr, comp, begin, end);
             quickSort(arr, comp, begin, q - 1);
             quickSort(arr, comp, q + 1, end);
@@ -25,10 +24,10 @@ public final class QuickSort
 
         T x = arr[end];
         int i = begin - 1;
-        for(int j = begin; j < end; j++)
-            if(comp.compare(arr[j], x) <= 0) {
+        for (int j = begin; j < end; j++)
+            if (comp.compare(arr[j], x) <= 0) {
                 i++;
-                swap(arr, i ,j);
+                swap(arr, i, j);
             }
         swap(arr, i + 1, end);
         return i + 1;
@@ -38,19 +37,6 @@ public final class QuickSort
         T temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            Integer[] arr = new Integer[50];
-            Random r = new Random();
-            for(int i = 0; i < arr.length; i++)
-                arr[i] = r.nextInt(1000);
-
-            sort(arr, Integer::compareTo);
-            System.out.println(Arrays.toString(arr));
-        }
     }
 }
 
