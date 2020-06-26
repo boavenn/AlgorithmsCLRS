@@ -1,10 +1,5 @@
 # AlgorithmsCLRS
 :green_book: Implementations of various algorithms and data structures mentioned in the book "Introduction to Algorithms, 3rd Edition", commonly reffered as CLRS
-
----
-**Disclaimer**: not every implementation is exactly the same as shown in the book and I didn't test everything out thoroughly so not everything
-may work properly (but majority of it should work fine) 
-
 ## Contents
 ### Basic data structures
 * [Linked list](https://github.com/boavenn/AlgorithmsCLRS/tree/master/src/main/java/_10_ElementaryDataStructures/LinkedList)
