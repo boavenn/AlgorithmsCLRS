@@ -43,7 +43,7 @@ public class AVLTree<T>
     }
 
     public void insert(T key) {
-        if(contains(key))
+        if (contains(key))
             return;
 
         root = insert(root, key);
@@ -67,7 +67,7 @@ public class AVLTree<T>
     }
 
     public void remove(T key) {
-        if(!contains(key))
+        if (!contains(key))
             return;
 
         root = remove(root, key);
@@ -105,6 +105,10 @@ public class AVLTree<T>
 
     public int size() {
         return size;
+    }
+
+    public int height() {
+        return root == null ? 0 : root.height - 1;
     }
 
     public T minimum() {
@@ -232,31 +236,5 @@ public class AVLTree<T>
         updateHeightOf(a);
         updateHeightOf(b);
         return b;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            AVLTree<Integer> avl = new AVLTree<>(Integer::compareTo);
-            avl.insert(43);
-            avl.insert(69);
-            avl.insert(36);
-            avl.insert(5);
-            avl.insert(72);
-            avl.insert(26);
-            avl.insert(79);
-            avl.insert(59);
-
-            avl.remove(36);
-            avl.remove(5);
-
-            System.out.println(avl.maximum());
-            System.out.println(avl.minimum());
-            System.out.println(avl.size());
-            System.out.println(avl.isEmpty());
-            System.out.println(avl.contains(72));
-            System.out.println(avl.predecessor(26));
-            System.out.println(avl.successor(59));
-        }
     }
 }

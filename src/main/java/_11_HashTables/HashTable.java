@@ -121,28 +121,4 @@ public class HashTable<K, V>
             }
         }
     }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            HashTable<String, Integer> hashTable = new HashTable<>(3);
-            hashTable.put("one", 1);
-            hashTable.put("two", 2);
-            hashTable.put("three", -20);
-            hashTable.put("three", 3);
-            hashTable.put("four", 4);
-            hashTable.put("five", 5);
-            System.out.println("Contains one: " + hashTable.contains("one"));
-            System.out.println("Size: " + hashTable.size());
-            System.out.println("Three: " + hashTable.get("three"));
-            hashTable.remove("five");
-            hashTable.remove("one");
-            hashTable.remove("three");
-            System.out.println("Two: " + hashTable.get("two"));
-            System.out.println("Size: " + hashTable.size());
-            hashTable.remove("two");
-            hashTable.remove("four");
-            System.out.println("Is empty: " + hashTable.isEmpty());
-        }
-    }
 }

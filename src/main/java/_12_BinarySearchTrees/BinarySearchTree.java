@@ -177,65 +177,31 @@ public class BinarySearchTree<T>
         preorderWalk(n.right, l);
     }
 
-    public List<T> inOrderWalk() {
+    public List<T> inorderWalk() {
         List<T> l = new LinkedList<>();
-        inOrderWalk(root, l);
+        inorderWalk(root, l);
         return l;
     }
 
-    private void inOrderWalk(Node<T> n, List<T> l) {
+    private void inorderWalk(Node<T> n, List<T> l) {
         if (n == null)
             return;
-        inOrderWalk(n.left, l);
+        inorderWalk(n.left, l);
         l.add(n.key);
-        inOrderWalk(n.right, l);
+        inorderWalk(n.right, l);
     }
 
-    public List<T> postOrderWalk() {
+    public List<T> postorderWalk() {
         List<T> l = new LinkedList<>();
-        postOrderWalk(root, l);
+        postorderWalk(root, l);
         return l;
     }
 
-    private void postOrderWalk(Node<T> n, List<T> l) {
+    private void postorderWalk(Node<T> n, List<T> l) {
         if (n == null)
             return;
-        postOrderWalk(n.left, l);
-        postOrderWalk(n.right, l);
+        postorderWalk(n.left, l);
+        postorderWalk(n.right, l);
         l.add(n.key);
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            BinarySearchTree<Integer> bst = new BinarySearchTree<>(Integer::compareTo);
-            Integer[] nodes = {10, 6, 13, 4, 8, 11, 14, 5, 7, 9, 12, 15};
-            for (Integer i : nodes)
-                bst.insert(i);
-
-            System.out.println("Preorder walk: " + bst.preorderWalk());
-            System.out.println("Inorder walk: " + bst.inOrderWalk());
-            System.out.println("Postorder walk: " + bst.postOrderWalk());
-
-            System.out.println("Successor of 5: " + bst.successor(5));
-            System.out.println("Predecessor of 6: " + bst.predecessor(6));
-            System.out.println("Successor of 10: " + bst.successor(10));
-            System.out.println("Predecessor of 11: " + bst.predecessor(11));
-
-            System.out.println("\nTree min: " + bst.minimum());
-            System.out.println("Tree max: " + bst.maximum());
-
-            System.out.println("\nContains 10? - " + bst.contains(10));
-            System.out.println("Contains 2? - " + bst.contains(2));
-            System.out.println("Size: " + bst.size());
-
-            System.out.println("\nRemoving 10 and 8...");
-            bst.remove(10);
-            bst.remove(8);
-
-            System.out.println("\nContains 10? - " + bst.contains(10));
-            System.out.println("Inorder walk: " + bst.inOrderWalk());
-            System.out.println("Size: " + bst.size());
-        }
     }
 }

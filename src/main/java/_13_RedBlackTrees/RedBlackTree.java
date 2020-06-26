@@ -1,7 +1,5 @@
 package _13_RedBlackTrees;
 
-import _12_BinarySearchTrees.BinarySearchTree;
-
 import java.util.Comparator;
 
 /*
@@ -362,21 +360,5 @@ public class RedBlackTree<T>
             }
         }
         n.color = Node.BLACK;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            RedBlackTree<Integer> rbt = new RedBlackTree<>(Integer::compareTo);
-            Integer[] n = {11, 2, 14, 15, 1, 7, 8, 5, 4};
-            for (Integer i : n)
-                rbt.insert(i);
-            System.out.println(rbt.minimum());
-            System.out.println(rbt.maximum());
-            System.out.println(rbt.isEmpty());
-            System.out.println(rbt.size());
-            rbt.remove(8);
-            rbt.remove(2);
-        }
     }
 }

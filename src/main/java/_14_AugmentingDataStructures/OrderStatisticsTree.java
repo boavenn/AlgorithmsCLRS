@@ -1,7 +1,6 @@
 package _14_AugmentingDataStructures;
 
 import java.util.Comparator;
-import java.util.Random;
 
 public class OrderStatisticsTree<T>
 {
@@ -70,12 +69,10 @@ public class OrderStatisticsTree<T>
         if (nodeToDelete.left == sentinel) {
             n = nodeToDelete.right;
             transplant(nodeToDelete, nodeToDelete.right);
-        }
-        else if (nodeToDelete.right == sentinel) {
+        } else if (nodeToDelete.right == sentinel) {
             n = nodeToDelete.left;
             transplant(nodeToDelete, nodeToDelete.left);
-        }
-        else {
+        } else {
             Node min = minimum(nodeToDelete.right);
             yOriginalColor = min.color;
             n = min.right;
@@ -103,6 +100,8 @@ public class OrderStatisticsTree<T>
     }
 
     public T select(int i) {
+        if (i <= 0 || i > size())
+            return null;
         return select(root, i).key;
     }
 
@@ -141,18 +140,6 @@ public class OrderStatisticsTree<T>
             t = t.parent;
         }
         return r;
-    }
-
-    public void printInOrder() {
-        printInOrder(root);
-    }
-
-    private void printInOrder(Node node) {
-        if (node == sentinel)
-            return;
-        printInOrder(node.left);
-        System.out.print(node.key + " ");
-        printInOrder(node.right);
     }
 
     private Node search(T key) {
@@ -247,8 +234,7 @@ public class OrderStatisticsTree<T>
                     u.color = Node.BLACK;
                     n.parent.parent.color = Node.RED;
                     n = n.parent.parent;
-                }
-                else {
+                } else {
                     if (n == n.parent.right) {
                         n = n.parent;
                         leftRotate(n);
@@ -257,16 +243,14 @@ public class OrderStatisticsTree<T>
                     n.parent.parent.color = Node.RED;
                     rightRotate(n.parent.parent);
                 }
-            }
-            else {
+            } else {
                 Node u = n.parent.parent.left;
                 if (u.color == Node.RED) {
                     n.parent.color = Node.BLACK;
                     u.color = Node.BLACK;
                     n.parent.parent.color = Node.RED;
                     n = n.parent.parent;
-                }
-                else {
+                } else {
                     if (n == n.parent.left) {
                         n = n.parent;
                         rightRotate(n);
@@ -293,8 +277,7 @@ public class OrderStatisticsTree<T>
                 if (s.left.color == Node.BLACK && s.right.color == Node.BLACK) {
                     s.color = Node.RED;
                     n = n.parent;
-                }
-                else {
+                } else {
                     if (s.right.color == Node.BLACK) {
                         s.left.color = Node.BLACK;
                         s.color = Node.RED;
@@ -307,8 +290,7 @@ public class OrderStatisticsTree<T>
                     leftRotate(n.parent);
                     n = root;
                 }
-            }
-            else {
+            } else {
                 Node s = n.parent.left;
                 if (s.color == Node.RED) {
                     s.color = Node.BLACK;
@@ -319,8 +301,7 @@ public class OrderStatisticsTree<T>
                 if (s.right.color == Node.BLACK && s.left.color == Node.BLACK) {
                     s.color = Node.RED;
                     n = n.parent;
-                }
-                else {
+                } else {
                     if (s.left.color == Node.BLACK) {
                         s.right.color = Node.BLACK;
                         s.color = Node.RED;
@@ -336,22 +317,5 @@ public class OrderStatisticsTree<T>
             }
         }
         n.color = Node.BLACK;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            OrderStatisticsTree<Integer> ost = new OrderStatisticsTree<>(Integer::compareTo);
-            for (int i = 0; i < 18; i++)
-                ost.insert(i);
-            System.out.println("Size: " + ost.size());
-            for (int i = 0; i < 18; i++)
-                System.out.print(ost.select(i + 1) + " ");
-            System.out.println();
-            for (int i = 0; i < 18; i += 2)
-                ost.remove(i);
-            for (int i = 0; i < ost.size(); i++)
-                System.out.print(ost.select(i + 1) + " ");
-        }
     }
 }

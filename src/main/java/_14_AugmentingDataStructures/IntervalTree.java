@@ -1,6 +1,6 @@
 package _14_AugmentingDataStructures;
 
-import java.util.Comparator;
+import java.util.Objects;
 
 public class IntervalTree<T>
 {
@@ -18,9 +18,31 @@ public class IntervalTree<T>
             return i.low <= high && low <= i.high;
         }
 
+        public int getLow() {
+            return low;
+        }
+
+        public int getHigh() {
+            return high;
+        }
+
         @Override
         public int compareTo(Interval o) {
             return Integer.compare(low, o.low);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Interval interval = (Interval) o;
+            return low == interval.low &&
+                    high == interval.high;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(low, high);
         }
     }
 
@@ -83,7 +105,7 @@ public class IntervalTree<T>
     }
 
     public void remove(Interval interval) {
-        Node nodeToDelete = intervalSearch(interval);
+        Node nodeToDelete = search(interval);
         if (nodeToDelete == sentinel)
             return;
 
@@ -122,9 +144,31 @@ public class IntervalTree<T>
         size--;
     }
 
+    public Interval intervalSearch(Interval interval) {
+        Node x = root;
+        while (x != sentinel && !interval.intersects(x.interval)) {
+            if (x.left != sentinel && x.interval.compareTo(interval) >= 0)
+                x = x.left;
+            else
+                x = x.right;
+        }
+        return x == sentinel ? null : x.interval;
+    }
+
     public boolean contains(Interval interval) {
-        Node z = intervalSearch(interval);
-        return z != sentinel;
+        return search(interval) != sentinel;
+    }
+
+    private Node search(Interval interval) {
+        Node n = root;
+        while (n != sentinel && !n.interval.equals(interval)) {
+            if (interval.low < n.interval.low) {
+                n = n.left;
+            } else {
+                n = n.right;
+            }
+        }
+        return n;
     }
 
     public boolean isEmpty() {
@@ -133,29 +177,6 @@ public class IntervalTree<T>
 
     public int size() {
         return size;
-    }
-
-    public void printInOrder() {
-        printInOrder(root);
-    }
-
-    private void printInOrder(Node node) {
-        if (node == sentinel)
-            return;
-        printInOrder(node.left);
-        System.out.print(node.value + " ");
-        printInOrder(node.right);
-    }
-
-    private Node intervalSearch(Interval interval) {
-        Node x = root;
-        while (x != sentinel && !interval.intersects(x.interval)) {
-            if (x.left != sentinel && x.interval.compareTo(interval) >= 0)
-                x = x.left;
-            else
-                x = x.right;
-        }
-        return x;
     }
 
     private Node minimum(Node n) {
@@ -316,28 +337,5 @@ public class IntervalTree<T>
             }
         }
         n.color = Node.BLACK;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            IntervalTree<Integer> it = new IntervalTree<>();
-            it.insert(new Interval(16, 21), 1);
-            it.insert(new Interval(25, 30), 2);
-            it.insert(new Interval(8, 9), 3);
-            it.insert(new Interval(5, 8), 4);
-            it.insert(new Interval(15, 23), 5);
-            it.insert(new Interval(17, 19), 6);
-            it.insert(new Interval(26, 26), 7);
-            it.insert(new Interval(0, 3), 8);
-            it.insert(new Interval(19, 20), 9);
-            it.insert(new Interval(6, 10), 10);
-            it.insert(new Interval(25, 27), 11);
-            System.out.println(it.size());
-            it.printInOrder();
-
-            it.remove(new Interval(25, 25));
-            it.remove(new Interval(6, 7));
-        }
     }
 }
