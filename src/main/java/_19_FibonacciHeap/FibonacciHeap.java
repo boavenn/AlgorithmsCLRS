@@ -1,23 +1,20 @@
 package _19_FibonacciHeap;
 
-import _27_MultithreadedAlgorithms.Fibonacci;
-
 import java.util.Comparator;
-import java.util.Random;
 
 public class FibonacciHeap<T>
 {
-    private static class Node<T>
+    public static class FibNode<T>
     {
-        private Node<T> parent;
-        private Node<T> left;
-        private Node<T> right;
-        private Node<T> child;
+        private FibNode<T> parent;
+        private FibNode<T> left;
+        private FibNode<T> right;
+        private FibNode<T> child;
         private T key;
         private int degree;
         private boolean isMarked;
 
-        public Node(T key) {
+        public FibNode(T key) {
             this.key = key;
             this.left = this;
             this.right = this;
@@ -33,7 +30,7 @@ public class FibonacciHeap<T>
             return parent != null;
         }
 
-        public void insert(Node<T> n) {
+        public void insert(FibNode<T> n) {
             left.right = n;
             n.left = left;
             n.right = this;
@@ -41,7 +38,7 @@ public class FibonacciHeap<T>
         }
     }
 
-    private Node<T> min;
+    private FibNode<T> min;
     private Comparator<T> comp;
     private int size = 0;
 
@@ -57,21 +54,21 @@ public class FibonacciHeap<T>
         return size;
     }
 
-    public void insert(T key) {
-        Node<T> n = new Node<>(key);
+    public FibNode<T> insert(T key) {
+        FibNode<T> n = new FibNode<>(key);
         insert(n);
+        return n;
     }
 
-    public void insert(Node<T> n) {
+    private void insert(FibNode<T> n) {
         insertToRootList(n);
         size++;
     }
 
-    private void insertToRootList(Node<T> n) {
+    private void insertToRootList(FibNode<T> n) {
         if (min == null) {
             min = n;
-        }
-        else {
+        } else {
             n.left = min.left;
             min.left.right = n;
             n.right = min;
@@ -81,7 +78,7 @@ public class FibonacciHeap<T>
         }
     }
 
-    private void removeChild(Node<T> c) {
+    private void removeChild(FibNode<T> c) {
         if (!c.isChild())
             throw new IllegalArgumentException();
 
@@ -95,7 +92,7 @@ public class FibonacciHeap<T>
         c.parent = null;
     }
 
-    private void link(Node<T> a, Node<T> b) {
+    private void link(FibNode<T> a, FibNode<T> b) {
         // update min if necessary
         if (min == a)
             min = b;
@@ -108,8 +105,7 @@ public class FibonacciHeap<T>
             b.child.left.right = a;
             a.right = b.child;
             b.child.left = a;
-        }
-        else {
+        } else {
             a.left = a;
             a.right = a;
             b.child = a;
@@ -139,13 +135,13 @@ public class FibonacciHeap<T>
     }
 
     public T extractMin() {
-        Node<T> m = min;
+        FibNode<T> m = min;
         T v = null;
         if (m != null) {
             v = m.key;
             // add m children to root list
             while (m.child != null) {
-                Node<T> c = m.child;
+                FibNode<T> c = m.child;
                 removeChild(c);
                 insertToRootList(c);
             }
@@ -156,8 +152,7 @@ public class FibonacciHeap<T>
             // look for a new min
             if (m == m.right) {
                 min = null;
-            }
-            else {
+            } else {
                 min = m.right;
                 consolidate();
             }
@@ -168,26 +163,25 @@ public class FibonacciHeap<T>
 
     @SuppressWarnings("unchecked")
     private void consolidate() {
-        Node<T>[] A = new Node[size];
+        FibNode<T>[] A = new FibNode[size];
 
-        Node<T> m = min;
-        Node<T> last = min.left;
+        FibNode<T> m = min;
+        FibNode<T> last = min.left;
         boolean done = false;
 
         do {
-            Node<T> a = m;
+            FibNode<T> a = m;
             m = m.right;
             if (m.left == last)
                 done = true;
 
             int d = a.degree;
             while (A[d] != null) {
-                Node<T> b = A[d];
+                FibNode<T> b = A[d];
                 if (comp.compare(a.key, b.key) > 0) {
                     link(a, b);
                     a = b;
-                }
-                else {
+                } else {
                     link(b, a);
                 }
                 A[d] = null;
@@ -202,7 +196,7 @@ public class FibonacciHeap<T>
         }
     }
 
-    private void cut(Node<T> c, Node<T> p) {
+    private void cut(FibNode<T> c, FibNode<T> p) {
         c.right.left = c.left;
         c.left.right = c.right;
         if (p.child == c) {
@@ -214,8 +208,8 @@ public class FibonacciHeap<T>
         c.isMarked = false;
     }
 
-    private void cascadingCut(Node<T> n) {
-        Node<T> p = n.parent;
+    private void cascadingCut(FibNode<T> n) {
+        FibNode<T> p = n.parent;
         if (p != null) {
             if (!n.isMarked)
                 n.isMarked = true;
@@ -226,37 +220,17 @@ public class FibonacciHeap<T>
         }
     }
 
-    public void decreaseKey(Node<T> n, T newKey) {
+    public void decreaseKey(FibNode<T> n, T newKey) {
         if (comp.compare(newKey, n.key) > 0)
             throw new IllegalArgumentException();
 
         n.key = newKey;
-        Node<T> p = n.parent;
+        FibNode<T> p = n.parent;
         if (p != null && comp.compare(n.key, p.key) < 0) {
             cut(n, p);
             cascadingCut(p);
         }
         if (comp.compare(n.key, min.key) < 0)
             min = n;
-    }
-
-    public static class Example
-    {
-        public static void main(String[] args) {
-            FibonacciHeap<Integer> h1 = new FibonacciHeap<>(Integer::compareTo);
-            for (int i = 0; i < 300; i++)
-                h1.insert(i);
-            FibonacciHeap<Integer> h2 = new FibonacciHeap<>(Integer::compareTo);
-            for (int i = 150; i < 450; i++)
-                h2.insert(i);
-
-            for (int i = 0; i < 100; i++)
-                System.out.print(h1.extractMin() + " ");
-            System.out.println();
-
-            FibonacciHeap<Integer> u = h1.union(h2);
-            for (int i = 0; i < 300; i++)
-                System.out.print(u.extractMin() + " ");
-        }
     }
 }

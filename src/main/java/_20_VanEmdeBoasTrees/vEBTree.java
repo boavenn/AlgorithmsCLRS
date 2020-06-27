@@ -20,8 +20,7 @@ public class vEBTree<T>
         if (universe == 2) {
             summary = null;
             cluster = null;
-        }
-        else {
+        } else {
             int upperSquare = upperSquare(universe);
             int lowerSquare = lowerSquare(universe);
             summary = new vEBTree<>(upperSquare);
@@ -55,8 +54,10 @@ public class vEBTree<T>
             return true;
         else if (universe == 2)
             return false;
-        else
-            return cluster[high(key)].contains(low(key));
+        else {
+            int idx = high(key);
+            return idx < cluster.length && cluster[idx].contains(low(key));
+        }
     }
 
     public int successor(int key) {
@@ -65,16 +66,14 @@ public class vEBTree<T>
                 return 1;
             else
                 return NIL;
-        }
-        else if (min != NIL && key < min)
+        } else if (min != NIL && key < min)
             return min;
         else {
             int maxLow = cluster[high(key)].maximum();
             if (maxLow != NIL && low(key) < maxLow) {
                 int offset = cluster[high(key)].successor(low(key));
                 return index(high(key), offset);
-            }
-            else {
+            } else {
                 int succCluster = summary.successor(high(key));
                 if (succCluster == NIL)
                     return NIL;
@@ -92,24 +91,21 @@ public class vEBTree<T>
                 return 0;
             else
                 return NIL;
-        }
-        else if (max != NIL && key > max)
+        } else if (max != NIL && key > max)
             return max;
         else {
             int minLow = cluster[high(key)].minimum();
             if (minLow != NIL && low(key) > minLow) {
                 int offset = cluster[high(key)].predecessor(low(key));
                 return index(high(key), offset);
-            }
-            else {
+            } else {
                 int predCluster = summary.predecessor(high(key));
                 if (predCluster == NIL) {
                     if (min != NIL && key > min)
                         return min;
                     else
                         return NIL;
-                }
-                else {
+                } else {
                     int offset = cluster[predCluster].maximum();
                     return index(predCluster, offset);
                 }
@@ -140,8 +136,7 @@ public class vEBTree<T>
                 if (cluster[high(key)].minimum() == NIL) {
                     summary.insert(high(key), value);
                     cluster[high(key)].emptyTreeInsert(low(key), value);
-                }
-                else
+                } else
                     cluster[high(key)].insert(low(key), value);
             }
             if (key > max) {
@@ -157,18 +152,15 @@ public class vEBTree<T>
             max = NIL;
             minValue = null;
             maxValue = null;
-        }
-        else if (universe == 2) {
+        } else if (universe == 2) {
             if (key == 0) {
                 min = 1;
                 minValue = maxValue;
-            }
-            else
+            } else
                 min = 0;
             max = min;
             maxValue = minValue;
-        }
-        else {
+        } else {
             if (key == min) {
                 int firstCluster = summary.minimum();
                 key = index(firstCluster, cluster[firstCluster].minimum());
@@ -183,15 +175,13 @@ public class vEBTree<T>
                     if (summaryMax == NIL) {
                         max = min;
                         maxValue = minValue;
-                    }
-                    else {
+                    } else {
                         int x = index(summaryMax, cluster[summaryMax].maximum());
                         maxValue = getValue(x);
                         max = x;
                     }
                 }
-            }
-            else if (key == max) {
+            } else if (key == max) {
                 int x = index(high(key), cluster[high(key)].maximum());
                 maxValue = getValue(x);
                 max = x;
@@ -217,27 +207,5 @@ public class vEBTree<T>
 
     private int upperSquare(int u) {
         return (int) Math.pow(2d, Math.ceil((Math.log(u) / Math.log(2d) / 2d)));
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            vEBTree<String> veb = new vEBTree<>(16);
-            veb.insert(7, "7th");
-            veb.insert(3, "3rd");
-            veb.insert(1, "1st");
-            veb.insert(8, "8th");
-            veb.insert(5, "5th");
-            veb.insert(2, "2nd");
-            veb.insert(6, "6th");
-            veb.insert(4, "4th");
-
-            int min = veb.minimum();
-            do {
-                System.out.print(veb.getValue(min) + " ");
-                veb.remove(min);
-                min = veb.minimum();
-            } while (min != -1);
-        }
     }
 }

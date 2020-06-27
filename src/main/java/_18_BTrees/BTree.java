@@ -111,7 +111,6 @@ public class BTree<T>
     private int minKeys;
     private int minChildren;
     private int maxKeys;
-    private int maxChildren;
 
     public BTree(int order, Comparator<T> comp) {
         this.comp = comp;
@@ -119,7 +118,6 @@ public class BTree<T>
         this.minKeys = order - 1;
         this.minChildren = order;
         this.maxKeys = 2 * order - 1;
-        this.maxChildren = 2 * order;
         this.root = new Node(true);
     }
 
@@ -240,8 +238,9 @@ public class BTree<T>
         // if we cant borrow any keys from either right or left sibling we need to merge
         if (leftSibling != null)
             merge(leftSibling, x);
-        else
+        else if (rightSibling != null)
             merge(x, rightSibling);
+        // if node doesn't have any siblings it means it is the root and we don't need to merge anything
     }
 
     private void splitChild(Node n, int idx) {
@@ -285,7 +284,7 @@ public class BTree<T>
     }
 
     public boolean isEmpty() {
-        return root == null;
+        return size == 0;
     }
 
     public void insert(T key) {
@@ -342,6 +341,7 @@ public class BTree<T>
         return v;
     }
 
+
     private T removeFromInternal(Node x, T key) {
         T v = x.keys[x.indexOf(key)];
         Node predecessorLeaf = predecessorLeafOf(x, key);
@@ -357,23 +357,5 @@ public class BTree<T>
                 rebalance(successorLeaf);
         }
         return v;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            BTree<Integer> btree = new BTree<>(3, Integer::compareTo);
-
-            Integer[] arr = {4, 5, 6, 10, 14, 15, 16, 20, 23, 27, 50, 51, 52, 60, 64, 65, 68, 70, 72, 73, 75};
-            for (Integer i : arr)
-                btree.insert(i);
-
-            System.out.println(btree.size());
-            btree.remove(70);
-            btree.remove(51);
-            btree.remove(64);
-            btree.remove(72);
-            System.out.println(btree.size());
-        }
     }
 }
