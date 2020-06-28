@@ -17,18 +17,18 @@ public final class Johnson<T>
         Vertex<T> s = new Vertex<>(null);
 
         g.addVertex(s);
-        for (Vertex<T> v : graph.getVertices())
+        for (Vertex<T> v : graph.vertices())
             g.addEdge(s.getKey(), v.getKey(), 0);
 
         Map<Vertex<T>, Integer> bellman = BellmanFord.bellmanFordDistance(g, s);
 
-        for (Edge<T> e : g.getEdges())
+        for (Edge<T> e : g.edges())
             e.setWeight(e.getWeight() + bellman.get(e.getSrc()) - bellman.get(e.getDest()));
 
-        VertexMatrix<T, Integer> D = new VertexMatrix<>(graph.getVertices(), 0);
-        for (Vertex<T> u : graph.getVertices()) {
+        VertexMatrix<T, Integer> D = new VertexMatrix<>(graph.vertices(), 0);
+        for (Vertex<T> u : graph.vertices()) {
             Map<Vertex<T>, Integer> dijkstra = Dijkstra.dijkstraDistance(g, u);
-            for (Vertex<T> v : graph.getVertices())
+            for (Vertex<T> v : graph.vertices())
                 D.set(u, v, dijkstra.get(v) + bellman.get(v) - bellman.get(u));
         }
 
@@ -37,9 +37,9 @@ public final class Johnson<T>
 
     private static <T> Graph<T> copy(Graph<T> graph) {
         Graph<T> temp = new Graph<>(graph.isDirected());
-        for (Vertex<T> v : graph.getVertices())
+        for (Vertex<T> v : graph.vertices())
             temp.addVertex(v.getKey());
-        for (Edge<T> e : graph.getEdges())
+        for (Edge<T> e : graph.edges())
             temp.addEdge(e.getSrc().getKey(), e.getDest().getKey(), e.getWeight());
         return temp;
     }

@@ -14,16 +14,16 @@ public final class KruskalAlgorithm<T>
         if (graph.isDirected())
             throw new IllegalArgumentException("Graph is directed");
 
-        List<Vertex<T>> vertices = graph.getVertices();
+        List<Vertex<T>> vertices = graph.vertices();
         List<Edge<T>> result = new LinkedList<>();
         // disjoint sets made from graph vertices
         WeightedUnionFind<T> sets = new WeightedUnionFind<>();
         // edges sorted by weight
-        List<Edge<T>> edges = graph.getEdges();
+        List<Edge<T>> edges = graph.edges();
         edges.sort(Comparator.comparingInt(Edge::getWeight));
 
         for (Vertex<T> v : vertices)
-            sets.add(v.getKey());
+            sets.makeSet(v.getKey());
 
         for (Edge<T> e : edges) {
             T src = e.getSrc().getKey();

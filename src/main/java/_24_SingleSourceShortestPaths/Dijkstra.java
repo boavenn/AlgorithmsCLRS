@@ -22,7 +22,7 @@ public final class Dijkstra
     }
 
     public static <T> Map<Vertex<T>, Integer> dijkstraDistance(Graph<T> graph, Vertex<T> src) {
-        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
+        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.vertices(), src);
         HashSet<Vertex<T>> visited = new HashSet<>();
         // FibonacciHeap is not necessary but changes time complexity from O((E+V)*logV) to O(E+V*logV)
         FibonacciHeap<DijkstraNode<T>> queue = new FibonacciHeap<>(Comparator.comparingInt(n -> n.d));
@@ -32,7 +32,7 @@ public final class Dijkstra
         while (!queue.isEmpty()) {
             Vertex<T> v = queue.extractMin().v;
             visited.add(v);
-            for (Edge<T> e : graph.getAdjacentEdgesOf(v)) {
+            for (Edge<T> e : graph.adjacentEdgesOf(v)) {
                 Vertex<T> dest = e.getDest();
                 if (!visited.contains(dest)) {
                     Util.relax(map, e);
@@ -45,7 +45,7 @@ public final class Dijkstra
     }
 
     public static <T> Map<Vertex<T>, Vertex<T>> dijkstraPath(Graph<T> graph, Vertex<T> src) {
-        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
+        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.vertices(), src);
         HashSet<Vertex<T>> visited = new HashSet<>();
         // FibonacciHeap is not necessary but changes time complexity from O((E+V)*logV) to O(E+V*logV)
         FibonacciHeap<DijkstraNode<T>> queue = new FibonacciHeap<>(Comparator.comparingInt(n -> n.d));
@@ -56,7 +56,7 @@ public final class Dijkstra
         while (!queue.isEmpty()) {
             Vertex<T> v = queue.extractMin().v;
             visited.add(v);
-            for (Edge<T> e : graph.getAdjacentEdgesOf(v)) {
+            for (Edge<T> e : graph.adjacentEdgesOf(v)) {
                 Vertex<T> dest = e.getDest();
                 if (!visited.contains(dest)) {
                     if (Util.relax(map, e))

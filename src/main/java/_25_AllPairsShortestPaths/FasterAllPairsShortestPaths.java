@@ -8,7 +8,7 @@ public final class FasterAllPairsShortestPaths<T>
 {
     public static <T> VertexMatrix<T, Integer> fasterAllPairsShortestPaths(Graph<T> graph) {
         VertexMatrix<T, Integer> L = Util.asMatrix(graph, Integer.MAX_VALUE, 0);
-        int n = graph.getVertices().size();
+        int n = graph.vertices().size();
         int m = 1;
         while (m < n - 1) {
             L = Util.extendShortestPaths(L, L);

@@ -55,12 +55,12 @@ public final class Util<T>
     }
 
     public static <T> VertexMatrix<T, Integer> asMatrix(Graph<T> graph, Integer defaultValue, Integer sameVertexDefaultValue) {
-        VertexMatrix<T, Integer> matrix = new VertexMatrix<>(graph.getVertices(), defaultValue);
+        VertexMatrix<T, Integer> matrix = new VertexMatrix<>(graph.vertices(), defaultValue);
 
-        for (Vertex<T> v : graph.getVertices())
+        for (Vertex<T> v : graph.vertices())
             matrix.set(v, v, sameVertexDefaultValue);
 
-        for (Edge<T> e : graph.getEdges())
+        for (Edge<T> e : graph.edges())
             matrix.set(e.getSrc(), e.getDest(), e.getWeight());
 
         return matrix;

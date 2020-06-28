@@ -8,18 +8,18 @@ import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 public final class TransitiveClosure<T>
 {
     public static <T> VertexMatrix<T, Integer> transitiveClosure(Graph<T> graph) {
-        VertexMatrix<T, Integer> T1 = new VertexMatrix<>(graph.getVertices(), 0);
-        for (Vertex<T> i : graph.getVertices()) {
-            for (Vertex<T> j : graph.getVertices()) {
-                if (i.equals(j) || graph.getAdjacentEdgesOf(i).stream().anyMatch(e -> e.getDest().equals(j)))
+        VertexMatrix<T, Integer> T1 = new VertexMatrix<>(graph.vertices(), 0);
+        for (Vertex<T> i : graph.vertices()) {
+            for (Vertex<T> j : graph.vertices()) {
+                if (i.equals(j) || graph.adjacentEdgesOf(i).stream().anyMatch(e -> e.getDest().equals(j)))
                     T1.set(i, j, 1);
             }
         }
 
-        for (Vertex<T> k : graph.getVertices()) {
-            VertexMatrix<T, Integer> T2 = new VertexMatrix<>(graph.getVertices(), 0);
-            for (Vertex<T> i : graph.getVertices()) {
-                for (Vertex<T> j : graph.getVertices()) {
+        for (Vertex<T> k : graph.vertices()) {
+            VertexMatrix<T, Integer> T2 = new VertexMatrix<>(graph.vertices(), 0);
+            for (Vertex<T> i : graph.vertices()) {
+                for (Vertex<T> j : graph.vertices()) {
                     Integer ik = T1.get(i, k);
                     Integer kj = T1.get(k, j);
                     Integer ij = T1.get(i, j);

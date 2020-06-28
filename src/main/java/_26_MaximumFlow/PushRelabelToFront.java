@@ -15,10 +15,10 @@ public final class PushRelabelToFront
 {
     public static <T> Integer pushRelabelToFront(Graph<T> graph, Vertex<T> src, Vertex<T> sink) {
         Map<Vertex<T>, Node> nodes = new HashMap<>();
-        VertexMatrix<T, Pipe> pipes = new VertexMatrix<>(graph.getVertices(), null);
+        VertexMatrix<T, Pipe> pipes = new VertexMatrix<>(graph.vertices(), null);
         Graph<T> resGraph = Util.initializePreflow(graph, src, nodes, pipes);
 
-        ArrayList<Vertex<T>> list = new ArrayList<>(resGraph.getVertices());
+        ArrayList<Vertex<T>> list = new ArrayList<>(resGraph.vertices());
         list.remove(src);
         list.remove(sink);
 
@@ -45,7 +45,7 @@ public final class PushRelabelToFront
     }
 
     private static <T> void discharge(Graph<T> resGraph, Vertex<T> u, Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
-        ArrayList<Vertex<T>> adj = new ArrayList<>(resGraph.getAdjacentVerticesOf(u));
+        ArrayList<Vertex<T>> adj = new ArrayList<>(resGraph.adjacentVerticesOf(u));
 
         int idx = 0;
         Vertex<T> v = adj.get(idx++);

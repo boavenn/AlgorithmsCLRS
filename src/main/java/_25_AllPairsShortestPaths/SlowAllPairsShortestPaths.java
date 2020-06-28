@@ -9,7 +9,7 @@ public final class SlowAllPairsShortestPaths<T>
     public static <T> VertexMatrix<T, Integer> slowAllPairsShortestPaths(Graph<T> graph) {
         VertexMatrix<T, Integer> W = Util.asMatrix(graph, Integer.MAX_VALUE, 0);
         VertexMatrix<T, Integer> L = Util.asMatrix(graph, Integer.MAX_VALUE, 0);
-        int n = graph.getVertices().size();
+        int n = graph.vertices().size();
 
         for (int m = 2; m < n; m++)
             L = Util.extendShortestPaths(L, W);

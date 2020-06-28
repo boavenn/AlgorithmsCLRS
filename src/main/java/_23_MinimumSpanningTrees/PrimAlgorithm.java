@@ -14,7 +14,7 @@ public final class PrimAlgorithm
         if (graph.isDirected())
             throw new IllegalArgumentException("Graph is directed");
 
-        List<Vertex<T>> vertices = graph.getVertices();
+        List<Vertex<T>> vertices = graph.vertices();
         List<Edge<T>> result = new LinkedList<>();
         // vertices already included in MST
         HashSet<Vertex<T>> visited = new HashSet<>();
@@ -22,7 +22,7 @@ public final class PrimAlgorithm
         FibonacciHeap<Edge<T>> queue = new FibonacciHeap<>(Comparator.comparingInt(Edge::getWeight));
 
         visited.add(root);
-        for (Edge<T> e : graph.getAdjacentEdgesOf(root))
+        for (Edge<T> e : graph.adjacentEdgesOf(root))
             queue.insert(e);
 
         while (visited.size() != vertices.size()) {
@@ -36,7 +36,7 @@ public final class PrimAlgorithm
 
             result.add(min);
             visited.add(min.getDest());
-            for (Edge<T> e : graph.getAdjacentEdgesOf(min.getDest()))
+            for (Edge<T> e : graph.adjacentEdgesOf(min.getDest()))
                 queue.insert(e);
         }
 

@@ -35,10 +35,10 @@ public final class Util
     static <T> Graph<T> createResidualGraph(Graph<T> graph) {
         Graph<T> temp = new Graph<>(true);
 
-        for (Vertex<T> v : graph.getVertices())
+        for (Vertex<T> v : graph.vertices())
             temp.addVertex(v.getKey());
 
-        for (Edge<T> e : graph.getEdges()) {
+        for (Edge<T> e : graph.edges()) {
             temp.addEdge(e.getSrc().getKey(), e.getDest().getKey(), e.getWeight());
             temp.addEdge(e.getDest().getKey(), e.getSrc().getKey(), 0);
         }
@@ -50,18 +50,18 @@ public final class Util
         Graph<T> resGraph = Util.createResidualGraph(graph);
 
         // init nodes
-        for (Vertex<T> v : resGraph.getVertices())
+        for (Vertex<T> v : resGraph.vertices())
             nodes.put(v, new Node(0, 0));
-        nodes.get(src).height = resGraph.getVertices().size();
+        nodes.get(src).height = resGraph.vertices().size();
 
         // init pipes
-        for (Edge<T> e : resGraph.getEdges())
+        for (Edge<T> e : resGraph.edges())
             pipes.set(e.getSrc(), e.getDest(), new Pipe(0, 0));
-        for (Edge<T> e : graph.getEdges())
+        for (Edge<T> e : graph.edges())
             pipes.get(e.getSrc(), e.getDest()).capacity = e.getWeight();
 
         // init preflow
-        for (Vertex<T> v : resGraph.getAdjacentVerticesOf(src)) {
+        for (Vertex<T> v : resGraph.adjacentVerticesOf(src)) {
             int c = pipes.get(src, v).capacity;
             pipes.get(src, v).flow = c;
             pipes.get(v, src).flow = -c;
@@ -73,7 +73,7 @@ public final class Util
 
     static <T> void relabel(Graph<T> resGraph, Vertex<T> u, Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
         int minHeight = Integer.MAX_VALUE;
-        for (Vertex<T> v : resGraph.getAdjacentVerticesOf(u)) {
+        for (Vertex<T> v : resGraph.adjacentVerticesOf(u)) {
             if (nodes.get(u).height <= nodes.get(v).height && pipes.get(u, v).capacity - pipes.get(u, v).flow > 0)
                 minHeight = Math.min(minHeight, nodes.get(v).height);
         }

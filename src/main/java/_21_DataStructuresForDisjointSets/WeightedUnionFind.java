@@ -1,7 +1,6 @@
 package _21_DataStructuresForDisjointSets;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class WeightedUnionFind<T>
 {
@@ -20,11 +19,23 @@ public class WeightedUnionFind<T>
 
     private Map<T, Node<T>> elements = new HashMap<>();
 
+    public List<List<T>> disjointSets() {
+        Map<Node<T>, List<T>> sets = new HashMap<>();
+        for (var entry : elements.entrySet()) {
+            Node<T> root = findSet(entry.getValue());
+            if (!sets.containsKey(root)) {
+                sets.put(root, new LinkedList<>());
+            }
+            sets.get(root).add(entry.getKey());
+        }
+        return new ArrayList<>(sets.values());
+    }
+
     private boolean exists(T value) {
         return elements.containsKey(value);
     }
 
-    public void add(T value) {
+    public void makeSet(T value) {
         elements.put(value, new Node<>(value));
     }
 
@@ -45,11 +56,6 @@ public class WeightedUnionFind<T>
         link(pa, pb);
     }
 
-    public void link(T a, T b) {
-        if (exists(a) && exists(b))
-            link(elements.get(a), elements.get(b));
-    }
-
     private void link(Node<T> x, Node<T> y) {
         if (x.rank > y.rank)
             y.parent = x;
@@ -68,22 +74,5 @@ public class WeightedUnionFind<T>
         if (n != n.parent)
             n.parent = findSet(n.parent);
         return n.parent;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            WeightedUnionFind<Integer> sets = new WeightedUnionFind<>();
-            for (Integer i : new Integer[]{1, 2, 3, 4, 5, 6, 7, 8})
-                sets.add(i);
-
-            sets.union(1, 2);
-            sets.union(3, 4);
-            sets.union(5, 8);
-            sets.union(7, 8);
-            System.out.println(sets.connected(7, 8));
-            sets.union(2, 5);
-            System.out.println(sets.connected(1, 5));
-        }
     }
 }

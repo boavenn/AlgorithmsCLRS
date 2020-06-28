@@ -16,11 +16,11 @@ public final class PushRelabelFifo
 {
     public static <T> Integer pushRelabelFifo(Graph<T> graph, Vertex<T> src, Vertex<T> sink) {
         Map<Vertex<T>, Node> nodes = new HashMap<>();
-        VertexMatrix<T, Pipe> pipes = new VertexMatrix<>(graph.getVertices(), null);
+        VertexMatrix<T, Pipe> pipes = new VertexMatrix<>(graph.vertices(), null);
         Queue<Vertex<T>> queue = new LinkedList<>();
         Graph<T> resGraph = Util.initializePreflow(graph, src, nodes, pipes);
 
-        for (Vertex<T> v : resGraph.getAdjacentVerticesOf(src)) {
+        for (Vertex<T> v : resGraph.adjacentVerticesOf(src)) {
             if (!v.equals(sink))
                 queue.add(v);
         }
@@ -46,7 +46,7 @@ public final class PushRelabelFifo
     }
 
     private static <T> Vertex<T> getPushLegalNode(Graph<T> resGraph, Vertex<T> u, Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
-        for (Vertex<T> v : resGraph.getAdjacentVerticesOf(u)) {
+        for (Vertex<T> v : resGraph.adjacentVerticesOf(u)) {
             Node nu = nodes.get(u);
             Node nv = nodes.get(v);
             Pipe puv = pipes.get(u, v);

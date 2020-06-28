@@ -52,7 +52,7 @@ public final class EdmondsCarp
 
         while (!queue.isEmpty()) {
             Vertex<T> vertex = queue.poll();
-            for (Vertex<T> v : graph.getAdjacentVerticesOf(vertex)) {
+            for (Vertex<T> v : graph.adjacentVerticesOf(vertex)) {
                 if (!visited.contains(v) && weights.get(vertex, v) > 0) {
                     visited.add(v);
                     queue.add(v);

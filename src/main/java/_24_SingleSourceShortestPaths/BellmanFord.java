@@ -11,11 +11,11 @@ import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 public final class BellmanFord
 {
     public static <T> Map<Vertex<T>, Integer> bellmanFordDistance(Graph<T> graph, Vertex<T> src) {
-        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
+        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.vertices(), src);
 
         int V = map.size();
         for (int i = 1; i < V; i++) {
-            for (Edge<T> e : graph.getEdges()) {
+            for (Edge<T> e : graph.edges()) {
                 Util.relax(map, e);
             }
         }
@@ -25,12 +25,12 @@ public final class BellmanFord
     }
 
     public static <T> Map<Vertex<T>, Vertex<T>> bellmanFordPath(Graph<T> graph, Vertex<T> src) {
-        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
+        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.vertices(), src);
         Map<Vertex<T>, Vertex<T>> util = new HashMap<>();
 
         int V = map.size();
         for (int i = 1; i < V; i++) {
-            for (Edge<T> e : graph.getEdges()) {
+            for (Edge<T> e : graph.edges()) {
                 if (Util.relax(map, e))
                     util.put(e.getDest(), e.getSrc());
             }
@@ -41,7 +41,7 @@ public final class BellmanFord
     }
 
     private static <T> void validateGraph(Graph<T> graph, Map<Vertex<T>, Integer> map) {
-        for (Edge<T> e : graph.getEdges()) {
+        for (Edge<T> e : graph.edges()) {
             Vertex<T> src = e.getSrc();
             Vertex<T> dest = e.getDest();
             if (map.get(src) != Integer.MAX_VALUE && map.get(dest) > map.get(src) + e.getWeight())

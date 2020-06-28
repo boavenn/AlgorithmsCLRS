@@ -13,11 +13,11 @@ import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 public final class DagShortestPaths
 {
     public static <T> Map<Vertex<T>, Integer> dagShortestPathsDistance(Graph<T> graph, Vertex<T> root) {
-        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), root);
-        List<Vertex<T>> vertices = TopologicalSort.topologicalSort(graph);
+        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.vertices(), root);
+        List<Vertex<T>> vertices = TopologicalSort.sort(graph);
 
         for (Vertex<T> v : vertices) {
-            for (Edge<T> e : graph.getAdjacentEdgesOf(v))
+            for (Edge<T> e : graph.adjacentEdgesOf(v))
                 Util.relax(map, e);
         }
 
@@ -25,12 +25,12 @@ public final class DagShortestPaths
     }
 
     public static <T> Map<Vertex<T>, Vertex<T>> dagShortestPathsPath(Graph<T> graph, Vertex<T> src) {
-        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.getVertices(), src);
-        List<Vertex<T>> vertices = TopologicalSort.topologicalSort(graph);
+        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.vertices(), src);
+        List<Vertex<T>> vertices = TopologicalSort.sort(graph);
         Map<Vertex<T>, Vertex<T>> result = new HashMap<>();
 
         for (Vertex<T> v : vertices) {
-            for (Edge<T> e : graph.getAdjacentEdgesOf(v))
+            for (Edge<T> e : graph.adjacentEdgesOf(v))
                 if (Util.relax(map, e))
                     result.put(e.getDest(), e.getSrc());
         }

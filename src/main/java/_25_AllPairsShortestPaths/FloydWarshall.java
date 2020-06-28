@@ -11,10 +11,10 @@ public final class FloydWarshall<T>
     public static <T> VertexMatrix<T, Integer> floydWarshallDistances(Graph<T> graph) {
         VertexMatrix<T, Integer> M1 = Util.asMatrix(graph, Integer.MAX_VALUE, 0);
 
-        for (Vertex<T> k : graph.getVertices()) {
-            VertexMatrix<T, Integer> M2 = new VertexMatrix<>(graph.getVertices(), Integer.MAX_VALUE);
-            for (Vertex<T> i : graph.getVertices()) {
-                for (Vertex<T> j : graph.getVertices()) {
+        for (Vertex<T> k : graph.vertices()) {
+            VertexMatrix<T, Integer> M2 = new VertexMatrix<>(graph.vertices(), Integer.MAX_VALUE);
+            for (Vertex<T> i : graph.vertices()) {
+                for (Vertex<T> j : graph.vertices()) {
                     Integer ik = M1.get(i, k);
                     Integer kj = M1.get(k, j);
                     Integer ij = M1.get(i, j);
@@ -32,17 +32,17 @@ public final class FloydWarshall<T>
 
     public static <T> VertexMatrix<T, Vertex<T>> floydWarshallPaths(Graph<T> graph) {
         VertexMatrix<T, Integer> M1 = Util.asMatrix(graph, Integer.MAX_VALUE, 0);
-        VertexMatrix<T, Vertex<T>> paths = new VertexMatrix<>(graph.getVertices(), null);
+        VertexMatrix<T, Vertex<T>> paths = new VertexMatrix<>(graph.vertices(), null);
 
-        for (Edge<T> e : graph.getEdges())
+        for (Edge<T> e : graph.edges())
             paths.set(e.getSrc(), e.getDest(), e.getSrc());
-        for (Vertex<T> v : graph.getVertices())
+        for (Vertex<T> v : graph.vertices())
             paths.set(v, v, null);
 
-        for (Vertex<T> k : graph.getVertices()) {
-            VertexMatrix<T, Integer> M2 = new VertexMatrix<>(graph.getVertices(), Integer.MAX_VALUE);
-            for (Vertex<T> i : graph.getVertices()) {
-                for (Vertex<T> j : graph.getVertices()) {
+        for (Vertex<T> k : graph.vertices()) {
+            VertexMatrix<T, Integer> M2 = new VertexMatrix<>(graph.vertices(), Integer.MAX_VALUE);
+            for (Vertex<T> i : graph.vertices()) {
+                for (Vertex<T> j : graph.vertices()) {
                     Integer ik = M1.get(i, k);
                     Integer kj = M1.get(k, j);
                     Integer ij = M1.get(i, j);

@@ -12,15 +12,15 @@ public final class VertexCover
 {
     public static <T> List<Vertex<T>> approxVertexCover(Graph<T> graph) {
         List<Vertex<T>> res = new LinkedList<>();
-        List<Edge<T>> util = new LinkedList<>(graph.getEdges());
+        List<Edge<T>> util = new LinkedList<>(graph.edges());
         while(!util.isEmpty()) {
             Edge<T> edge = util.remove(0);
             res.add(edge.getSrc());
             res.add(edge.getDest());
 
-            for (Edge<T> e : graph.getAdjacentEdgesOf(edge.getSrc()))
+            for (Edge<T> e : graph.adjacentEdgesOf(edge.getSrc()))
                 util.removeIf(a -> a.equals(e) || (a.getSrc().equals(e.getDest()) && a.getDest().equals(e.getSrc())));
-            for (Edge<T> e : graph.getAdjacentEdgesOf(edge.getDest()))
+            for (Edge<T> e : graph.adjacentEdgesOf(edge.getDest()))
                 util.removeIf(a -> a.equals(e) || (a.getSrc().equals(e.getDest()) && a.getDest().equals(e.getSrc())));
         }
         return res;
