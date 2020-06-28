@@ -13,7 +13,7 @@ public final class TSPTour
 {
     public static <T> List<Vertex<T>> approxTSPTour(Graph<T> g, Vertex<T> root) {
         List<Vertex<T>> res = new LinkedList<>();
-        List<Edge<T>> msp = PrimAlgorithm.calc(g, root);
+        List<Edge<T>> msp = PrimAlgorithm.findMST(g, root);
 
         res.add(root);
         for (Edge<T> e : msp)

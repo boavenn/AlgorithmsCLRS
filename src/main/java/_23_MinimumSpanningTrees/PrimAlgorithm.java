@@ -10,34 +10,30 @@ import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
 public final class PrimAlgorithm
 {
-    public static <T> List<Edge<T>> calc(Graph<T> graph, Vertex<T> root) {
+    public static <T> List<Edge<T>> findMST(Graph<T> graph, Vertex<T> root) {
         if (graph.isDirected())
             throw new IllegalArgumentException("Graph is directed");
 
-        List<Vertex<T>> vertices = graph.vertices();
+        int numOfVertices = graph.vertices().size();
         List<Edge<T>> result = new LinkedList<>();
-        // vertices already included in MST
         HashSet<Vertex<T>> visited = new HashSet<>();
-        // FibonacciHeap is not necessary but changes time complexity from O(E*logV) to O(E+V*logV)
-        FibonacciHeap<Edge<T>> queue = new FibonacciHeap<>(Comparator.comparingInt(Edge::getWeight));
+        PriorityQueue<Edge<T>> queue = new PriorityQueue<>(Comparator.comparingInt(Edge::getWeight));
 
         visited.add(root);
-        for (Edge<T> e : graph.adjacentEdgesOf(root))
-            queue.insert(e);
+        queue.addAll(graph.adjacentEdgesOf(root));
 
-        while (visited.size() != vertices.size()) {
-            Edge<T> min = queue.extractMin();
-            // if edge destination is already in MST we omit it
+        while (visited.size() != numOfVertices) {
+            Edge<T> min = queue.poll();
+            // if edge destination vertex is already in MST we omit it
             while (min != null && visited.contains(min.getDest()))
-                min = queue.extractMin();
+                min = queue.poll();
 
             if(min == null)
                 throw new IllegalArgumentException("Cannot create MST from a given graph");
 
             result.add(min);
             visited.add(min.getDest());
-            for (Edge<T> e : graph.adjacentEdgesOf(min.getDest()))
-                queue.insert(e);
+            queue.addAll(graph.adjacentEdgesOf(min.getDest()));
         }
 
         return result;
@@ -63,7 +59,7 @@ public final class PrimAlgorithm
                 graph.addEdge(E[i][0], E[i][1], W[i]);
 
             System.out.println(graph);
-            System.out.println(PrimAlgorithm.calc(graph, new Vertex<>('a')));
+            System.out.println(PrimAlgorithm.findMST(graph, new Vertex<>('a')));
         }
     }
 }
