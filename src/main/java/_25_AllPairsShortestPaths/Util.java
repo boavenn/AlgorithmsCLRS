@@ -4,10 +4,10 @@ import _22_ElementaryGraphAlgorithms.Graph;
 
 import java.util.*;
 
-import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
+import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 
-public final class Util<T>
+public final class Util
 {
     public static class VertexMatrix<T, V>
     {
@@ -54,11 +54,12 @@ public final class Util<T>
         }
     }
 
-    public static <T> VertexMatrix<T, Integer> asMatrix(Graph<T> graph, Integer defaultValue, Integer sameVertexDefaultValue) {
-        VertexMatrix<T, Integer> matrix = new VertexMatrix<>(graph.vertices(), defaultValue);
+    public static <T> VertexMatrix<T, Integer> asAdjacencyMatrix(Graph<T> graph,
+                                                                 Integer noEdgeValue, Integer sameVertexValue) {
+        VertexMatrix<T, Integer> matrix = new VertexMatrix<>(graph.vertices(), noEdgeValue);
 
         for (Vertex<T> v : graph.vertices())
-            matrix.set(v, v, sameVertexDefaultValue);
+            matrix.set(v, v, sameVertexValue);
 
         for (Edge<T> e : graph.edges())
             matrix.set(e.getSrc(), e.getDest(), e.getWeight());
@@ -66,39 +67,40 @@ public final class Util<T>
         return matrix;
     }
 
-    public static <T> VertexMatrix<T, Integer> extendShortestPaths(VertexMatrix<T, Integer> L, VertexMatrix<T, Integer> W) {
-        VertexMatrix<T, Integer> res = new VertexMatrix<>(L.getVertices(), Integer.MAX_VALUE);
+    public static <T> VertexMatrix<T, Integer> extendShortestPaths(VertexMatrix<T, Integer> nextStepAdjMatrix,
+                                                                   VertexMatrix<T, Integer> initialAdjMatrix) {
+        VertexMatrix<T, Integer> result = new VertexMatrix<>(nextStepAdjMatrix.getVertices(), Integer.MAX_VALUE);
 
-        for (Vertex<T> i : L.getVertices()) {
-            for (Vertex<T> j : L.getVertices()) {
-                for (Vertex<T> k : W.getVertices()) {
-                    Integer ik = L.get(i, k);
-                    Integer kj = W.get(k, j);
+        for (Vertex<T> i : nextStepAdjMatrix.getVertices()) {
+            for (Vertex<T> j : nextStepAdjMatrix.getVertices()) {
+                for (Vertex<T> k : initialAdjMatrix.getVertices()) {
+                    Integer ik = nextStepAdjMatrix.get(i, k);
+                    Integer kj = initialAdjMatrix.get(k, j);
                     if (!sumOverflow(ik, kj)) {
-                        Integer value = Math.min(res.get(i, j), ik + kj);
-                        res.set(i, j, value);
+                        result.set(i, j, Math.min(result.get(i, j), ik + kj));
                     }
                 }
             }
         }
 
-        return res;
+        return result;
     }
 
-    public static <T> List<Vertex<T>> getAllPairsShortestPath(VertexMatrix<T, Vertex<T>> paths, Vertex<T> i, Vertex<T> j) {
+    public static <T> List<Vertex<T>> getAllPairsShortestPath(VertexMatrix<T, Vertex<T>> predecessorsMatrix,
+                                                              Vertex<T> source, Vertex<T> dest) {
         List<Vertex<T>> path = new LinkedList<>();
-        Stack<Vertex<T>> stack = new Stack<>();
+        Deque<Vertex<T>> stack = new ArrayDeque<>();
 
         while (true) {
-            if (i.equals(j)) {
-                stack.add(i);
+            if (source.equals(dest)) {
+                stack.add(source);
                 break;
             }
-            if (paths.get(i, j) == null)
+            if (predecessorsMatrix.get(source, dest) == null)
                 break;
             else {
-                stack.push(j);
-                j = paths.get(i, j);
+                stack.push(dest);
+                dest = predecessorsMatrix.get(source, dest);
             }
         }
 

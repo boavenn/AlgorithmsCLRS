@@ -13,7 +13,7 @@ public final class EdmondsCarp
     public static <T> Integer edmondsCarp(Graph<T> graph, Vertex<T> src, Vertex<T> sink) {
         Graph<T> resGraph = Util.createResidualGraph(graph);
         // Edge weights matrix for faster weight searching
-        VertexMatrix<T, Integer> weights = asMatrix(resGraph, Integer.MAX_VALUE, 0);
+        VertexMatrix<T, Integer> weights = asAdjacencyMatrix(resGraph, Integer.MAX_VALUE, 0);
         int maxFlow = 0;
         Map<Vertex<T>, Vertex<T>> parentMap = augmentedBfs(resGraph, weights, src);
 

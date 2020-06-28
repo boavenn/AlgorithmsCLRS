@@ -2,52 +2,33 @@ package _25_AllPairsShortestPaths;
 
 import _22_ElementaryGraphAlgorithms.Graph;
 
-import static _25_AllPairsShortestPaths.Util.VertexMatrix;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
+import static _25_AllPairsShortestPaths.Util.VertexMatrix;
 
-public final class TransitiveClosure<T>
+public final class TransitiveClosure
 {
-    public static <T> VertexMatrix<T, Integer> transitiveClosure(Graph<T> graph) {
-        VertexMatrix<T, Integer> T1 = new VertexMatrix<>(graph.vertices(), 0);
+    public static <T> VertexMatrix<T, Integer> process(Graph<T> graph) {
+        VertexMatrix<T, Integer> matrix = new VertexMatrix<>(graph.vertices(), 0);
         for (Vertex<T> i : graph.vertices()) {
             for (Vertex<T> j : graph.vertices()) {
                 if (i.equals(j) || graph.adjacentEdgesOf(i).stream().anyMatch(e -> e.getDest().equals(j)))
-                    T1.set(i, j, 1);
+                    matrix.set(i, j, 1);
             }
         }
 
         for (Vertex<T> k : graph.vertices()) {
-            VertexMatrix<T, Integer> T2 = new VertexMatrix<>(graph.vertices(), 0);
+            VertexMatrix<T, Integer> temp = new VertexMatrix<>(graph.vertices(), 0);
             for (Vertex<T> i : graph.vertices()) {
                 for (Vertex<T> j : graph.vertices()) {
-                    Integer ik = T1.get(i, k);
-                    Integer kj = T1.get(k, j);
-                    Integer ij = T1.get(i, j);
-                    T2.set(i, j, Math.max(ij, Math.min(ik, kj))); // v = ij || (ik && kj)
+                    Integer ik = matrix.get(i, k);
+                    Integer kj = matrix.get(k, j);
+                    Integer ij = matrix.get(i, j);
+                    temp.set(i, j, Math.max(ij, Math.min(ik, kj))); // temp[i, j] = ij || (ik && kj)
                 }
             }
-            T1 = T2;
+            matrix = temp;
         }
 
-        return T1;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            Graph<Integer> graph = new Graph<>(true);
-            Integer[] V = {1, 2, 3, 4};
-            Integer[][] E = {
-                    {1, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 2},
-                    {3, 3}, {4, 1}, {4, 3}, {4, 4},
-            };
-
-            for (Integer i : V)
-                graph.addVertex(i);
-            for (Integer[] integers : E)
-                graph.addEdge(integers[0], integers[1]);
-
-            System.out.println(TransitiveClosure.transitiveClosure(graph));
-        }
+        return matrix;
     }
 }
