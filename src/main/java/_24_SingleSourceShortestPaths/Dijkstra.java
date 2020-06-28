@@ -1,6 +1,5 @@
 package _24_SingleSourceShortestPaths;
 
-import _19_FibonacciHeap.FibonacciHeap;
 import _22_ElementaryGraphAlgorithms.Graph;
 
 import java.util.*;
@@ -8,94 +7,62 @@ import java.util.*;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public final class Dijkstra
+public final class Dijkstra<T>
 {
-    private static class DijkstraNode<T>
+    private static class Node<T>
     {
-        Vertex<T> v;
-        Integer d;
+        Vertex<T> vertex;
+        Integer distance;
 
-        public DijkstraNode(Vertex<T> v, Integer d) {
-            this.v = v;
-            this.d = d;
+        public Node(Vertex<T> vertex, Integer distance) {
+            this.vertex = vertex;
+            this.distance = distance;
         }
     }
 
-    public static <T> Map<Vertex<T>, Integer> dijkstraDistance(Graph<T> graph, Vertex<T> src) {
-        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.vertices(), src);
-        HashSet<Vertex<T>> visited = new HashSet<>();
-        // FibonacciHeap is not necessary but changes time complexity from O((E+V)*logV) to O(E+V*logV)
-        FibonacciHeap<DijkstraNode<T>> queue = new FibonacciHeap<>(Comparator.comparingInt(n -> n.d));
+    private Map<Vertex<T>, Integer> distance;
+    private Map<Vertex<T>, Vertex<T>> predecessors;
 
-        queue.insert(new DijkstraNode<>(src, 0));
+    public void process(Graph<T> graph, Vertex<T> source) {
+        distance = Util.initializeSource(graph.vertices(), source);
+        predecessors = new HashMap<>();
+        HashSet<Vertex<T>> visited = new HashSet<>();
+        PriorityQueue<Node<T>> queue = new PriorityQueue<>(Comparator.comparingInt(n -> n.distance));
+
+        queue.add(new Node<>(source, 0));
 
         while (!queue.isEmpty()) {
-            Vertex<T> v = queue.extractMin().v;
+            Vertex<T> v = queue.poll().vertex;
             visited.add(v);
-            for (Edge<T> e : graph.adjacentEdgesOf(v)) {
-                Vertex<T> dest = e.getDest();
+            for (Edge<T> edge : graph.adjacentEdgesOf(v)) {
+                Vertex<T> dest = edge.getDest();
                 if (!visited.contains(dest)) {
-                    Util.relax(map, e);
-                    queue.insert(new DijkstraNode<>(dest, map.get(dest)));
+                    if (Util.relaxEdge(distance, edge)) {
+                        predecessors.put(dest, v);
+                    }
+                    queue.add(new Node<>(dest, distance.get(dest)));
                 }
             }
         }
-
-        return map;
     }
 
-    public static <T> Map<Vertex<T>, Vertex<T>> dijkstraPath(Graph<T> graph, Vertex<T> src) {
-        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.vertices(), src);
-        HashSet<Vertex<T>> visited = new HashSet<>();
-        // FibonacciHeap is not necessary but changes time complexity from O((E+V)*logV) to O(E+V*logV)
-        FibonacciHeap<DijkstraNode<T>> queue = new FibonacciHeap<>(Comparator.comparingInt(n -> n.d));
-        Map<Vertex<T>, Vertex<T>> result = new HashMap<>();
-
-        queue.insert(new DijkstraNode<>(src, 0));
-
-        while (!queue.isEmpty()) {
-            Vertex<T> v = queue.extractMin().v;
-            visited.add(v);
-            for (Edge<T> e : graph.adjacentEdgesOf(v)) {
-                Vertex<T> dest = e.getDest();
-                if (!visited.contains(dest)) {
-                    if (Util.relax(map, e))
-                        result.put(dest, v);
-                    queue.insert(new DijkstraNode<>(dest, map.get(dest)));
-                }
-            }
-        }
-
-        return result;
+    public static <T> Map<Vertex<T>, Integer> distances(Graph<T> graph, Vertex<T> source) {
+        Dijkstra<T> dijkstra = new Dijkstra<>();
+        dijkstra.process(graph, source);
+        return dijkstra.distance;
     }
 
-    private static class Example
-    {
-        public static void main(String[] args) {
-            Graph<Character> graph = new Graph<>(true);
+    public static <T> Map<Vertex<T>, Vertex<T>> predecessors(Graph<T> graph, Vertex<T> source) {
+        Dijkstra<T> dijkstra = new Dijkstra<>();
+        dijkstra.process(graph, source);
+        return dijkstra.predecessors;
+    }
 
-            Character[] V = {'s', 't', 'x', 'y', 'z'};
-            Character[][] E = {
-                    {'s', 't'}, {'s', 'y'}, {'t', 'x'}, {'t', 'y'}, {'y', 't'},
-                    {'y', 'x'}, {'y', 'z'}, {'z', 'x'}, {'z', 's'}, {'x', 'z'}
-            };
-            Integer[] W = {10, 5, 1, 2, 3, 9, 2, 6, 7, 4};
+    public Map<Vertex<T>, Integer> getDistance() {
+        return distance;
+    }
 
-            for (Character c : V)
-                graph.addVertex(c);
-            for (int i = 0; i < E.length; i++)
-                graph.addEdge(E[i][0], E[i][1], W[i]);
-
-            System.out.println(graph);
-            System.out.println("Shortest paths from root 's': ");
-            System.out.println(Dijkstra.dijkstraDistance(graph, new Vertex<>('s')));
-
-            System.out.println("\nShortest paths from root 's': ");
-            Map<Vertex<Character>, Vertex<Character>> paths = Dijkstra.dijkstraPath(graph, new Vertex<>('s'));
-            System.out.println(paths);
-
-            System.out.println("\nShortest path from 's' to 'x': ");
-            System.out.println(Util.getShortestPath(paths, new Vertex<>('s'), new Vertex<>('x')));
-        }
+    public Map<Vertex<T>, Vertex<T>> getPredecessors() {
+        return predecessors;
     }
 }

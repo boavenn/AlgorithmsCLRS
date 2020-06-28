@@ -20,14 +20,14 @@ public final class Johnson<T>
         for (Vertex<T> v : graph.vertices())
             g.addEdge(s.getKey(), v.getKey(), 0);
 
-        Map<Vertex<T>, Integer> bellman = BellmanFord.bellmanFordDistance(g, s);
+        Map<Vertex<T>, Integer> bellman = BellmanFord.distances(g, s);
 
         for (Edge<T> e : g.edges())
             e.setWeight(e.getWeight() + bellman.get(e.getSrc()) - bellman.get(e.getDest()));
 
         VertexMatrix<T, Integer> D = new VertexMatrix<>(graph.vertices(), 0);
         for (Vertex<T> u : graph.vertices()) {
-            Map<Vertex<T>, Integer> dijkstra = Dijkstra.dijkstraDistance(g, u);
+            Map<Vertex<T>, Integer> dijkstra = Dijkstra.distances(g, u);
             for (Vertex<T> v : graph.vertices())
                 D.set(u, v, dijkstra.get(v) + bellman.get(v) - bellman.get(u));
         }

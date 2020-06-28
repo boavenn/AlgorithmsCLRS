@@ -1,6 +1,7 @@
 package _24_SingleSourceShortestPaths;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
@@ -8,14 +9,13 @@ import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 public final class Util
 {
     public static <T> Map<Vertex<T>, Integer> initializeSource(List<Vertex<T>> vertices, Vertex<T> src) {
-        Map<Vertex<T>, Integer> temp = new HashMap<>();
-        for (Vertex<T> v : vertices)
-            temp.put(v, Integer.MAX_VALUE);
+        Map<Vertex<T>, Integer> temp = vertices.stream()
+                .collect(Collectors.toMap(v -> v, v -> Integer.MAX_VALUE));
         temp.replace(src, 0);
         return temp;
     }
 
-    public static <T> boolean relax(Map<Vertex<T>, Integer> map, Edge<T> edge) {
+    public static <T> boolean relaxEdge(Map<Vertex<T>, Integer> map, Edge<T> edge) {
         Vertex<T> src = edge.getSrc();
         Vertex<T> dest = edge.getDest();
         if (map.get(src) != Integer.MAX_VALUE && map.get(dest) > map.get(src) + edge.getWeight()) {
@@ -25,19 +25,14 @@ public final class Util
         return false;
     }
 
-    public static <T> List<Vertex<T>> getShortestPath(Map<Vertex<T>, Vertex<T>> paths, Vertex<T> src, Vertex<T> dest) {
+    public static <T> List<Vertex<T>> shortestPath(Map<Vertex<T>, Vertex<T>> predecessorMap, Vertex<T> source, Vertex<T> dest) {
         List<Vertex<T>> path = new LinkedList<>();
-        Stack<Vertex<T>> stack = new Stack<>();
-
-        while (!dest.equals(src)) {
-            stack.push(dest);
-            dest = paths.get(dest);
+        while (!dest.equals(source)) {
+            path.add(dest);
+            dest = predecessorMap.get(dest);
         }
-        path.add(src);
-
-        while (!stack.isEmpty())
-            path.add(stack.pop());
-
+        path.add(dest);
+        Collections.reverse(path);
         return path;
     }
 }

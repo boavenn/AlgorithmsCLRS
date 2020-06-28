@@ -10,61 +10,41 @@ import java.util.Map;
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
 import static _22_ElementaryGraphAlgorithms.Graph.Edge;
 
-public final class DagShortestPaths
+public final class DagShortestPaths<T>
 {
-    public static <T> Map<Vertex<T>, Integer> dagShortestPathsDistance(Graph<T> graph, Vertex<T> root) {
-        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.vertices(), root);
+    private Map<Vertex<T>, Vertex<T>> predecessors;
+    private Map<Vertex<T>, Integer> distance;
+
+    public void process(Graph<T> graph, Vertex<T> root) {
+        distance = Util.initializeSource(graph.vertices(), root);
+        predecessors = new HashMap<>();
         List<Vertex<T>> vertices = TopologicalSort.sort(graph);
 
-        for (Vertex<T> v : vertices) {
-            for (Edge<T> e : graph.adjacentEdgesOf(v))
-                Util.relax(map, e);
+        for (Vertex<T> vertex : vertices) {
+            for (Edge<T> edge : graph.adjacentEdgesOf(vertex)) {
+                if (Util.relaxEdge(distance, edge))
+                    predecessors.put(edge.getDest(), edge.getSrc());
+            }
         }
-
-        return map;
     }
 
-    public static <T> Map<Vertex<T>, Vertex<T>> dagShortestPathsPath(Graph<T> graph, Vertex<T> src) {
-        Map<Vertex<T>, Integer> map = Util.initializeSource(graph.vertices(), src);
-        List<Vertex<T>> vertices = TopologicalSort.sort(graph);
-        Map<Vertex<T>, Vertex<T>> result = new HashMap<>();
-
-        for (Vertex<T> v : vertices) {
-            for (Edge<T> e : graph.adjacentEdgesOf(v))
-                if (Util.relax(map, e))
-                    result.put(e.getDest(), e.getSrc());
-        }
-
-        return result;
+    public static <T> Map<Vertex<T>, Integer> distances(Graph<T> graph, Vertex<T> root) {
+        DagShortestPaths<T> dsp = new DagShortestPaths<>();
+        dsp.process(graph, root);
+        return dsp.distance;
     }
 
-    private static class Example
-    {
-        public static void main(String[] args) {
-            Graph<Character> graph = new Graph<>(true);
+    public static <T> Map<Vertex<T>, Vertex<T>> predecessors(Graph<T> graph, Vertex<T> root) {
+        DagShortestPaths<T> dsp = new DagShortestPaths<>();
+        dsp.process(graph, root);
+        return dsp.predecessors;
+    }
 
-            Character[] V = {'r', 's', 't', 'x', 'y', 'z'};
-            Character[][] E = {
-                    {'r', 's'}, {'r', 't'}, {'s', 'x'}, {'s', 't'}, {'t', 'x'},
-                    {'t', 'y'}, {'t', 'z'}, {'x', 'z'}, {'x', 'y'}, {'y', 'z'}
-            };
-            Integer[] W = {5, 3, 6, 2, 7, 4, 2, 1, -1, -2};
+    public Map<Vertex<T>, Vertex<T>> getPredecessors() {
+        return predecessors;
+    }
 
-            for (Character c : V)
-                graph.addVertex(c);
-            for (int i = 0; i < E.length; i++)
-                graph.addEdge(E[i][0], E[i][1], W[i]);
-
-            System.out.println(graph);
-            System.out.println("Shortest paths from root 's': ");
-            System.out.println(DagShortestPaths.dagShortestPathsDistance(graph, new Vertex<>('s')));
-
-            System.out.println("\nShortest paths from root 's': ");
-            Map<Vertex<Character>, Vertex<Character>> paths = DagShortestPaths.dagShortestPathsPath(graph, new Vertex<>('s'));
-            System.out.println(paths);
-
-            System.out.println("\nShortest path from 's' to 'z': ");
-            System.out.println(Util.getShortestPath(paths, new Vertex<>('s'), new Vertex<>('z')));
-        }
+    public Map<Vertex<T>, Integer> getDistance() {
+        return distance;
     }
 }
