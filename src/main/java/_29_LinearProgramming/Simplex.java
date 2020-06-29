@@ -1,7 +1,5 @@
 package _29_LinearProgramming;
 
-import java.util.Arrays;
-
 /**
  * Based on <a href=https://algs4.cs.princeton.edu/code/edu/princeton/cs/algs4/LinearProgramming.java>algs4</a>
  */
@@ -124,7 +122,7 @@ public final class Simplex
      * @param c coefficients of the objective function
      * @return result in array [x_1, x_2, ..., x_m, x_m+1, ..., x_m+n]
      */
-    public static double[] simplex(double[][] A, double[] b, double[] c) {
+    public static double[] solve(double[][] A, double[] b, double[] c) {
         initTableaux(A, b, c);
         solve();
 
@@ -132,19 +130,5 @@ public final class Simplex
         for (int i = 0; i < m; i++)
             solution[util[i]] = t[i][n + m];
         return solution;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            double[][] A = {
-                    {1, 1, 3},
-                    {2, 2, 5},
-                    {4, 1, 2}
-            };
-            double[] b = {30, 24, 36};
-            double[] c = {3, 1, 2};
-            System.out.println(Arrays.toString(Simplex.simplex(A, b, c)));
-        }
     }
 }

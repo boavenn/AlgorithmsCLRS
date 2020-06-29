@@ -14,11 +14,4 @@ public final class ModularExponentation
         }
         return d;
     }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            System.out.println(ModularExponentation.modExp(7, 560, 561));
-        }
-    }
 }

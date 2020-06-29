@@ -1,7 +1,5 @@
 package _30_PolynomialsAndTheFFT;
 
-import java.util.Arrays;
-
 public final class IterativeFFT
 {
     private static int rev(int x, int n) {
