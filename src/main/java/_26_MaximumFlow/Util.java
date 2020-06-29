@@ -2,6 +2,7 @@ package _26_MaximumFlow;
 
 import _22_ElementaryGraphAlgorithms.Graph;
 
+import java.util.List;
 import java.util.Map;
 
 import static _22_ElementaryGraphAlgorithms.Graph.Vertex;
@@ -12,27 +13,43 @@ public final class Util
 {
     public static class Node
     {
-        Integer height;
-        Integer excess;
+        private Integer height;
+        private Integer excess;
 
         public Node(Integer height, Integer excess) {
             this.height = height;
             this.excess = excess;
         }
+
+        public Integer getHeight() {
+            return height;
+        }
+
+        public Integer getExcess() {
+            return excess;
+        }
     }
 
     public static class Pipe
     {
-        Integer capacity;
-        Integer flow;
+        private Integer capacity;
+        private Integer flow;
 
         public Pipe(Integer capacity, Integer flow) {
             this.capacity = capacity;
             this.flow = flow;
         }
+
+        public Integer getCapacity() {
+            return capacity;
+        }
+
+        public Integer getFlow() {
+            return flow;
+        }
     }
 
-    static <T> Graph<T> createResidualGraph(Graph<T> graph) {
+    public static <T> Graph<T> createResidualGraph(Graph<T> graph) {
         Graph<T> temp = new Graph<>(true);
 
         for (Vertex<T> v : graph.vertices())
@@ -46,7 +63,8 @@ public final class Util
         return temp;
     }
 
-    static <T> Graph<T> initializePreflow(Graph<T> graph, Vertex<T> src, Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
+    public static <T> Graph<T> initializePreflow(Graph<T> graph, Vertex<T> src,
+                                                 Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
         Graph<T> resGraph = Util.createResidualGraph(graph);
 
         // init nodes
@@ -71,16 +89,18 @@ public final class Util
         return resGraph;
     }
 
-    static <T> void relabel(Graph<T> resGraph, Vertex<T> u, Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
+    public static <T> void relabel(Graph<T> resGraph, Vertex<T> vertex,
+                                   Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
         int minHeight = Integer.MAX_VALUE;
-        for (Vertex<T> v : resGraph.adjacentVerticesOf(u)) {
-            if (nodes.get(u).height <= nodes.get(v).height && pipes.get(u, v).capacity - pipes.get(u, v).flow > 0)
+        for (Vertex<T> v : resGraph.adjacentVerticesOf(vertex)) {
+            if (nodes.get(vertex).height <= nodes.get(v).height &&
+                    pipes.get(vertex, v).capacity - pipes.get(vertex, v).flow > 0)
                 minHeight = Math.min(minHeight, nodes.get(v).height);
         }
-        nodes.get(u).height = minHeight + 1;
+        nodes.get(vertex).height = minHeight + 1;
     }
 
-    static <T> void push(Vertex<T> u, Vertex<T> v, Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
+    public static <T> void push(Vertex<T> u, Vertex<T> v, Map<Vertex<T>, Node> nodes, VertexMatrix<T, Pipe> pipes) {
         int flow = Math.min(nodes.get(u).excess, pipes.get(u, v).capacity - pipes.get(u, v).flow);
         nodes.get(u).excess -= flow;
         nodes.get(v).excess += flow;
