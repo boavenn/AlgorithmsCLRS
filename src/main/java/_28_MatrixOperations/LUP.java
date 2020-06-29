@@ -1,16 +1,14 @@
 package _28_MatrixOperations;
 
-import java.util.Arrays;
-
 public final class LUP
 {
-    public static double[] LUPSolve(double[][] A, double[] B) {
+    public static double[] solve(double[][] A, double[] B) {
         int[] P = new int[A.length];
-        double[][] LU = LUPDecomposition(A, P);
-        return LUPSolve(LU, P, B);
+        double[][] LU = decomposition(A, P);
+        return solve(LU, P, B);
     }
 
-    public static double[] LUPSolve(double[][] LU, int[] P, double[] B) {
+    public static double[] solve(double[][] LU, int[] P, double[] B) {
         int n = LU.length;
         double[] Y = new double[n];
         double[] X = new double[n];
@@ -32,7 +30,7 @@ public final class LUP
         return X;
     }
 
-    public static double[][] LUPDecomposition(double[][] A, int[] P) {
+    public static double[][] decomposition(double[][] A, int[] P) {
         int n = A.length;
         double[][] temp = new double[n][n];
         for (int i = 0; i < n; i++)
@@ -76,33 +74,5 @@ public final class LUP
         double temp = matrix[i][j];
         matrix[i][j] = matrix[k][l];
         matrix[k][l] = temp;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            double[][] A = {
-                    {5, 6, 3},
-                    {0, 0.8, -0.6},
-                    {0, 0, 2.5}
-            };
-            double[] B = {8, 1.4, 1.5};
-            System.out.println(Arrays.toString(LUPSolve(A, B)));
-
-            A = new double[][]{
-                    {1, 0, 0},
-                    {4, 1, 0},
-                    {-6, 5, 1}
-            };
-            B = new double[]{3, 14, -7};
-            System.out.println(Arrays.toString(LUPSolve(A, B)));
-
-            A = new double[][]{
-                    {2, 2},
-                    {1, 3}
-            };
-            B = new double[]{8, 6};
-            System.out.println(Arrays.toString(LUPSolve(A, B)));
-        }
     }
 }
