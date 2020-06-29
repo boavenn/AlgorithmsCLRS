@@ -5,46 +5,40 @@ import java.util.List;
 
 public final class KMPMatcher
 {
-    private static int[] computePrefixFunction(String P) {
-        int m = P.length();
-        int[] p = new int[m];
-        int k = 0;
-        for (int q = 1; q < m; q++) {
-            while (k > 0 && P.charAt(k) != P.charAt(q))
-                k = p[k - 1];
-            if (P.charAt(k) == P.charAt(q))
-                k++;
-            p[q] = k;
+    private static int[] computePrefixFunction(String pattern) {
+        int patternLen = pattern.length();
+        int[] prefixFunction = new int[patternLen];
+        int i = 0;
+        for (int j = 1; j < patternLen; j++) {
+            while (i > 0 && pattern.charAt(i) != pattern.charAt(j)) {
+                i = prefixFunction[i - 1];
+            }
+            if (pattern.charAt(i) == pattern.charAt(j)) {
+                i++;
+            }
+            prefixFunction[j] = i;
         }
-        return p;
+        return prefixFunction;
     }
 
-    public static List<Integer> match(String T, String P) {
-        List<Integer> res = new LinkedList<>();
-
-        int n = T.length();
-        int m = P.length();
-        int[] p = computePrefixFunction(P);
-        int q = 0;
-        for (int i = 0; i < n; i++) {
-            while (q > 0 && P.charAt(q) != T.charAt(i))
-                q = p[q - 1];
-            if (P.charAt(q) == T.charAt(i))
-                q++;
-            if (q == m) {
-                res.add(i - m + 1);
-                q = p[q - 1];
+    public static List<Integer> match(String text, String pattern) {
+        List<Integer> result = new LinkedList<>();
+        int patternLen = pattern.length();
+        int textLen = text.length();
+        int[] prefixFunction = computePrefixFunction(pattern);
+        int j = 0;
+        for (int i = 0; i < textLen; i++) {
+            while (j > 0 && pattern.charAt(j) != text.charAt(i)) {
+                j = prefixFunction[j - 1];
+            }
+            if (pattern.charAt(j) == text.charAt(i)) {
+                j++;
+            }
+            if (j == patternLen) {
+                result.add(i - patternLen + 1);
+                j = prefixFunction[j - 1];
             }
         }
-        return res;
-    }
-
-    public static class Example
-    {
-        public static void main(String[] args) {
-            String T = "abbabbaa";
-            String P = "abba";
-            System.out.println(KMPMatcher.match(T, P));
-        }
+        return result;
     }
 }

@@ -1,10 +1,10 @@
 package _33_ComputationalGeometry;
 
-import java.util.*;
+import java.util.Arrays;
 
 public final class ClosestPair
 {
-    public static Point[] closestPair(Point[] points) {
+    public static Point[] find(Point[] points) {
         int n = points.length;
         if (n <= 1)
             return null;
@@ -23,6 +23,7 @@ public final class ClosestPair
                 return Double.compare(p1.getY(), p2.getY());
             return Double.compare(p1.getX(), p2.getX());
         });
+
         Arrays.sort(sortedByY, (p1, p2) -> {
             if (p1.getY() == p2.getY())
                 return Double.compare(p1.getX(), p2.getX());
@@ -79,7 +80,6 @@ public final class ClosestPair
         return min;
     }
 
-
     private static Point[] bruteForce(Point[] points) {
         int n = points.length;
         double min = Double.MAX_VALUE;
@@ -98,23 +98,5 @@ public final class ClosestPair
         }
 
         return new Point[]{points[a], points[b]};
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            int[] x = {3, 12, 40, 10, 12, 5, -5, -10, 10, -5, -2, -5, 10, 2, 20, 10, -15, -15};
-            int[] y = {2, 30, 50, -5, 10, 10, 5, 15, 3, 25, 15, -10, -15, -8, 5, 20, 0, -10};
-            Point[] p = new Point[x.length];
-            for (int i = 0; i < x.length; i++)
-                p[i] = new Point(x[i], y[i]);
-
-            Point[] min = closestPair(p);
-            if (min != null) {
-                System.out.println(min[0]);
-                System.out.println(min[1]);
-                System.out.println(min[0].distanceTo(min[1]));
-            }
-        }
     }
 }

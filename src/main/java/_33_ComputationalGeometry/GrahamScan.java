@@ -7,11 +7,11 @@ import java.util.List;
 
 public final class GrahamScan
 {
-    private static class Comp implements Comparator<Point>
+    private static class PolarOrder implements Comparator<Point>
     {
         private Point p0;
 
-        public Comp(Point p0) {
+        public PolarOrder(Point p0) {
             this.p0 = p0;
         }
 
@@ -39,30 +39,29 @@ public final class GrahamScan
         }
     }
 
-    public static List<Point> grahamScan(List<Point> l) {
-        List<Point> res = new LinkedList<>();
-        Point[] points = new Point[l.size()];
-        l.toArray(points);
+    public static List<Point> scan(List<Point> pointList) {
+        List<Point> result = new LinkedList<>();
+        Point[] points = pointList.toArray(new Point[0]);
+        moveMinYPointToFront(points);
 
-        swap(points, 0, minYPointIndex(points));
         Point min = points[0];
-        Arrays.sort(points, 1, points.length, new Comp(min));
+        Arrays.sort(points, 1, points.length, new PolarOrder(min));
         int m = points.length - 1;
 
         if (m >= 2) {
-            res.add(0, points[0]);
-            res.add(0, points[1]);
-            res.add(0, points[2]);
+            result.add(0, points[0]);
+            result.add(0, points[1]);
+            result.add(0, points[2]);
             for (int i = 3; i <= m; i++) {
-                while (res.get(0).orientation(res.get(1), points[i]) <= 0)
-                    res.remove(0);
-                res.add(0, points[i]);
+                while (result.get(0).orientation(result.get(1), points[i]) <= 0)
+                    result.remove(0);
+                result.add(0, points[i]);
             }
         }
-        return res;
+        return result;
     }
 
-    private static int minYPointIndex(Point[] points) {
+    private static void moveMinYPointToFront(Point[] points) {
         Point minY = points[0];
         int minIdx = 0;
         int n = points.length;
@@ -73,24 +72,9 @@ public final class GrahamScan
                 minIdx = i;
             }
         }
-        return minIdx;
-    }
 
-    private static <T> void swap(T[] arr, int i, int j) {
-        T temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            int[] x = {-7, -4, 2, 6, 8, 7, 4, 8, 0, 3, 6, 0, -9, -8, -8, -10, -2, -10};
-            int[] y = {8, 6, 6, 4, 6, -2, -6, -7, 0, -2, -10, -6, -5, -2, 0, 3, 2, 4};
-            List<Point> l = new LinkedList<>();
-            for (int i = 0; i < x.length; i++)
-                l.add(new Point(x[i], y[i]));
-            System.out.println(grahamScan(l));
-        }
+        Point temp = points[0];
+        points[0] = points[minIdx];
+        points[minIdx] = temp;
     }
 }

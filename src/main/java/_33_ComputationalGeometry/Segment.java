@@ -1,5 +1,7 @@
 package _33_ComputationalGeometry;
 
+import java.util.Objects;
+
 public class Segment
 {
     private Point start;
@@ -28,5 +30,19 @@ public class Segment
 
     public Point getRight() {
         return start.getX() < end.getX() ? end : start;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Segment segment = (Segment) o;
+        return Objects.equals(start, segment.start) &&
+                Objects.equals(end, segment.end);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(start, end);
     }
 }

@@ -1,5 +1,7 @@
 package _33_ComputationalGeometry;
 
+import java.util.Objects;
+
 public class Point
 {
     private double x;
@@ -24,6 +26,10 @@ public class Point
         return Point.orientation(this, p1, p2);
     }
 
+    /* val <  0 = counterclockwise
+     * val == 0 = colinear
+     * val >  0 = clockwise
+     */
     public static double orientation(Point p0, Point p1, Point p2) {
         return (p2.getX() - p0.getX()) * (p1.getY() - p0.getY()) - (p1.getX() - p0.getX()) * (p2.getY() - p0.getY());
     }
@@ -34,6 +40,20 @@ public class Point
 
     public double getY() {
         return y;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Point point = (Point) o;
+        return Double.compare(point.x, x) == 0 &&
+                Double.compare(point.y, y) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
     }
 
     @Override

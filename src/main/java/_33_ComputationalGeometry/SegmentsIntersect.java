@@ -7,7 +7,7 @@ public final class SegmentsIntersect
                 Math.min(p0.getY(), p1.getY()) <= p2.getY() && p2.getY() <= Math.max(p0.getY(), p1.getY());
     }
 
-    public static boolean segmentsIntersect(Point p1, Point p2, Point p3, Point p4) {
+    public static boolean check(Point p1, Point p2, Point p3, Point p4) {
         double d1 = p3.orientation(p4, p1);
         double d2 = p3.orientation(p4, p2);
         double d3 = p1.orientation(p2, p3);
@@ -24,19 +24,7 @@ public final class SegmentsIntersect
             return d4 == 0 && onSegment(p1, p2, p4);
     }
 
-    public static boolean segmentsIntersect(Segment a, Segment b) {
-        return segmentsIntersect(a.getStart(), a.getEnd(), b.getStart(), b.getEnd());
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            Point p1 = new Point(0, 0);
-            Point p2 = new Point(3, 5);
-            Point p3 = new Point(1, 3);
-            Point p4 = new Point(4, 0);
-
-            System.out.println(segmentsIntersect(p1, p2, p3, p4));
-        }
+    public static boolean check(Segment a, Segment b) {
+        return check(a.getStart(), a.getEnd(), b.getStart(), b.getEnd());
     }
 }
