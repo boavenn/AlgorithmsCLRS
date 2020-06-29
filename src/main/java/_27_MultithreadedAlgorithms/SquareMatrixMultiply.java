@@ -2,7 +2,8 @@ package _27_MultithreadedAlgorithms;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.RecursiveAction;
 
 public final class SquareMatrixMultiply
 {
@@ -46,7 +47,7 @@ public final class SquareMatrixMultiply
         }
     }
 
-    public static int[][] squareMatrixMultiply(int[][] a, int[][] b) {
+    public static int[][] multiply(int[][] a, int[][] b) {
         int size = a.length;
         int[][] res = new int[size][size];
 
@@ -55,33 +56,5 @@ public final class SquareMatrixMultiply
             loops.add(new OuterLoop(a, b, res, size, k));
         ForkJoinTask.invokeAll(loops);
         return res;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            int[][] a = {
-                    {1, 2, 2, 3},
-                    {1, 2, 2, 1},
-                    {3, 3, 1, 2},
-                    {1, 2, 1, 1}
-            };
-            int[][] b = {
-                    {1, 2, 3, 1},
-                    {1, 1, 3, 2},
-                    {2, 1, 2, 3},
-                    {2, 3, 1, 1}
-            };
-            printMatrix(squareMatrixMultiply(a, b));
-        }
-    }
-
-    private static void printMatrix(int[][] matrix) {
-        int len = matrix.length;
-        for (int[] ints : matrix) {
-            for (int j = 0; j < len; j++)
-                System.out.print(ints[j] + " ");
-            System.out.println();
-        }
     }
 }

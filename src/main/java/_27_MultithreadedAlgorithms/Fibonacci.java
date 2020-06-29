@@ -1,6 +1,7 @@
 package _27_MultithreadedAlgorithms;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveTask;
 
 public final class Fibonacci
 {
@@ -29,19 +30,8 @@ public final class Fibonacci
         }
     }
 
-    public static int parallelFibonacci(int n) {
+    public static int parallel(int n) {
         ForkJoinPool pool = ForkJoinPool.commonPool();
         return pool.invoke(new Fib(n));
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            long s = System.currentTimeMillis();
-            for (int i = 0; i < 30; i++)
-                System.out.println(parallelFibonacci(i));
-            long f = System.currentTimeMillis();
-            System.out.println("Time: " + (f - s) + " ms");
-        }
     }
 }

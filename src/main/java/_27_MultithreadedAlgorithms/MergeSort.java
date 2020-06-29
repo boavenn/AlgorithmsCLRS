@@ -1,9 +1,8 @@
 package _27_MultithreadedAlgorithms;
 
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
 
 /*
 It's a lot slower than normal merge sort in this implementation, normally
@@ -15,106 +14,110 @@ public final class MergeSort
 {
     private static class MSort<T> extends RecursiveAction
     {
-        private T[] A;
-        private int p;
-        private int r;
-        private T[] B;
-        private int off;
+        private T[] array;
+        private int begin;
+        private int end;
+        private T[] resultArray;
+        private int resultArrayBegin;
         private Comparator<T> comp;
 
-        public MSort(T[] a, int p, int r, T[] b, int off, Comparator<T> comp) {
-            A = a;
-            this.p = p;
-            this.r = r;
-            B = b;
-            this.off = off;
+        public MSort(T[] array, int begin, int end, T[] resultArray, int resultArrayBegin, Comparator<T> comp) {
+            this.array = array;
+            this.begin = begin;
+            this.end = end;
+            this.resultArray = resultArray;
+            this.resultArrayBegin = resultArrayBegin;
             this.comp = comp;
         }
 
         @SuppressWarnings("unchecked")
         @Override
         protected void compute() {
-            int n = r - p + 1;
+            int n = end - begin + 1;
             if (n == 1)
-                B[off] = A[p];
+                resultArray[resultArrayBegin] = array[begin];
             else {
-                T[] T = (T[]) new Object[n];
-                int q = (p + r) / 2;
-                int u = q - p;
+                T[] auxArray = (T[]) new Object[n];
+                int mid = (begin + end) / 2;
+                int auxBegin = mid - begin + 1;
 
-                MSort<T> left = new MSort<>(A, q + 1, r, T, u + 1, comp);
-                MSort<T> right = new MSort<>(A, p, q, T, 0, comp);
+                MSort<T> left = new MSort<>(array, begin, mid, auxArray, 0, comp);
+                MSort<T> right = new MSort<>(array, mid + 1, end, auxArray, auxBegin, comp);
 
-                left.fork();
+                right.fork();
+                left.compute();
 
-                right.compute();
-                left.join();
+                right.join();
 
-                Merge<T> merge = new Merge<>(T, 0, u, u + 1, n - 1, B, off, comp);
+                Merge<T> merge = new Merge<>(auxArray, 0, auxBegin - 1, auxBegin, n - 1,
+                        resultArray, resultArrayBegin, comp);
                 merge.compute();
-                System.arraycopy(B, off, A, off, n);
+                System.arraycopy(resultArray, resultArrayBegin, array, begin, n);
             }
         }
     }
 
     private static class Merge<T> extends RecursiveAction
     {
-        private T[] T;
-        private int p1;
-        private int r1;
-        private int p2;
-        private int r2;
-        private T[] A;
-        private int p3;
+        private T[] array;
+        private int begin1;
+        private int end1;
+        private int begin2;
+        private int end2;
+        private T[] resultArray;
+        private int beginRes;
         private Comparator<T> comp;
 
-        public Merge(T[] t, int p1, int r1, int p2, int r2, T[] a, int p3, Comparator<T> comp) {
-            T = t;
-            this.p1 = p1;
-            this.r1 = r1;
-            this.p2 = p2;
-            this.r2 = r2;
-            A = a;
-            this.p3 = p3;
+        public Merge(T[] array, int begin1, int end1, int begin2, int end2,
+                     T[] resultArray, int beginRes, Comparator<T> comp) {
+            this.array = array;
+            this.begin1 = begin1;
+            this.end1 = end1;
+            this.begin2 = begin2;
+            this.end2 = end2;
+            this.resultArray = resultArray;
+            this.beginRes = beginRes;
             this.comp = comp;
         }
 
         @Override
         protected void compute() {
-            int n1 = r1 - p1 + 1;
-            int n2 = r2 - p2 + 1;
+            int n1 = end1 - begin1 + 1;
+            int n2 = end2 - begin2 + 1;
+            // consider only the bigger subarray
             if (n1 < n2) {
-                int temp = p1;
-                p1 = p2;
-                p2 = temp;
-                temp = r1;
-                r1 = r2;
-                r2 = temp;
+                int temp = begin1;
+                begin1 = begin2;
+                begin2 = temp;
+                temp = end1;
+                end1 = end2;
+                end2 = temp;
                 n1 = n2;
             }
             if (n1 != 0) {
-                int q1 = (p1 + r1) / 2;
-                int q2 = binarySearch(T[q1], T, p2, r2, comp);
-                int q3 = p3 + (q1 - p1) + (q2 - p2);
-                A[q3] = T[q1];
+                int mid1 = (begin1 + end1) / 2;
+                int mid2 = binarySearch(array[mid1], array, begin2, end2, comp);
+                int mid3 = beginRes + (mid1 - begin1) + (mid2 - begin2);
 
-                Merge<T> left = new Merge<>(T, p1, q1 - 1, p2, q2 - 1, A, p3, comp);
-                Merge<T> right = new Merge<>(T, q1 + 1, r1, q2, r2, A, q3 + 1, comp);
+                resultArray[mid3] = array[mid1];
+
+                Merge<T> left = new Merge<>(array, begin1, mid1 - 1, begin2, mid2 - 1, resultArray, beginRes, comp);
+                Merge<T> right = new Merge<>(array, mid1 + 1, end1, mid2, end2, resultArray, mid3 + 1, comp);
 
                 left.fork();
-
                 right.compute();
+
                 left.join();
             }
         }
     }
 
-    private static <T> int binarySearch(T v, T[] T, int p, int r, Comparator<T> comp) {
-        int low = p;
-        int high = Math.max(p, r + 1);
+    private static <T> int binarySearch(T searchedValue, T[] array, int begin, int end, Comparator<T> comp) {
+        int low = begin;
+        int high = Math.max(begin, end + 1);
         while (low < high) {
             int mid = (low + high) / 2;
-            if (comp.compare(v, T[mid]) <= 0)
+            if (comp.compare(searchedValue, array[mid]) <= 0)
                 high = mid;
             else
                 low = mid + 1;
@@ -123,25 +126,9 @@ public final class MergeSort
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> void sort(T[] A, Comparator<T> comp) {
-        T[] B = (T[]) new Object[A.length];
+    public static <T> void sort(T[] array, Comparator<T> comp) {
+        T[] auxArray = (T[]) new Object[array.length];
         ForkJoinPool pool = ForkJoinPool.commonPool();
-        pool.invoke(new MSort<>(A, 0, A.length - 1, B, 0, comp));
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            int size = 100;
-            Integer[] A = new Integer[size];
-            Random r = new Random();
-
-            for (int i = 0; i < size; i++)
-                A[i] = r.nextInt(100);
-
-            System.out.println(Arrays.toString(A));
-            sort(A, Integer::compareTo);
-            System.out.println(Arrays.toString(A));
-        }
+        pool.invoke(new MSort<>(array, 0, array.length - 1, auxArray, 0, comp));
     }
 }

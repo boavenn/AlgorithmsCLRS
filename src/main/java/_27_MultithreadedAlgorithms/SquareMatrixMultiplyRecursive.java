@@ -2,7 +2,9 @@ package _27_MultithreadedAlgorithms;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.RecursiveTask;
 
 public final class SquareMatrixMultiplyRecursive
 {
@@ -100,39 +102,11 @@ public final class SquareMatrixMultiplyRecursive
         }
     }
 
-    public static int[][] squareMatrixMultiplyRecursive(int[][] a, int[][] b) {
+    public static int[][] multiply(int[][] a, int[][] b) {
         int size = a.length;
         int[][] res = new int[size][size];
         ForkJoinPool pool = ForkJoinPool.commonPool();
-        pool.invoke(new Multiply(res, a, b, 0, 0, 0,0, 0, 0, size));
+        pool.invoke(new Multiply(res, a, b, 0, 0, 0, 0, 0, 0, size));
         return res;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            int[][] a = {
-                    {1, 2, 2, 3},
-                    {1, 2, 2, 1},
-                    {3, 3, 1, 2},
-                    {1, 2, 1, 1}
-            };
-            int[][] b = {
-                    {1, 2, 3, 1},
-                    {1, 1, 3, 2},
-                    {2, 1, 2, 3},
-                    {2, 3, 1, 1}
-            };
-            printMatrix(squareMatrixMultiplyRecursive(a, b));
-        }
-    }
-
-    private static void printMatrix(int[][] matrix) {
-        int len = matrix.length;
-        for (int[] ints : matrix) {
-            for (int j = 0; j < len; j++)
-                System.out.print(ints[j] + " ");
-            System.out.println();
-        }
     }
 }

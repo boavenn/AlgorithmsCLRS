@@ -1,7 +1,7 @@
 package _27_MultithreadedAlgorithms;
 
-import java.util.Arrays;
-import java.util.concurrent.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
 
 public final class MatrixVectorMultiply
 {
@@ -28,40 +28,25 @@ public final class MatrixVectorMultiply
             if (i == j) {
                 for (int k = 0; k < size; k++)
                     result[i] += matrix[i][k] * vector[k];
-            }
-            else {
+            } else {
                 int mid = (i + j) / 2;
 
                 MainLoop left = new MainLoop(matrix, vector, result, size, i, mid);
                 MainLoop right = new MainLoop(matrix, vector, result, size, mid + 1, j);
 
                 left.fork();
-
                 right.compute();
+
                 left.join();
             }
         }
     }
 
-    public static int[] matrixVectorMultiply(int[][] matrix, int[] vector) {
+    public static int[] multiply(int[][] matrix, int[] vector) {
         int size = matrix.length;
         int[] result = new int[size];
         ForkJoinPool pool = ForkJoinPool.commonPool();
         pool.invoke(new MainLoop(matrix, vector, result, size, 0, size - 1));
         return result;
-    }
-
-    private static class Example
-    {
-        public static void main(String[] args) {
-            int[][] matrix = {
-                    {1, 2, 3, 4},
-                    {3, 2, 4, 1},
-                    {1, 3, 2, 4},
-                    {1, 4, 2, 3}
-            };
-            int[] vector = {1, 2, 3, 4};
-            System.out.println(Arrays.toString(matrixVectorMultiply(matrix, vector)));
-        }
     }
 }
