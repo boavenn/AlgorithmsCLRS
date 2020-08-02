@@ -1,4 +1,4 @@
-# AlgorithmsCLRS
+# algorithms-clrs
 :green_book: Implementations of various algorithms and data structures mentioned in the book "Introduction to Algorithms, 3rd Edition", commonly reffered as CLRS
 ## Contents
 ### Basic data structures
